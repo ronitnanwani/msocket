@@ -1,11 +1,13 @@
 #include "msocket.h"
 #define SEMKEY1 6969
 #define SEMKEY2 6970
+#define SEMKEYMUTEX 6971
 
 struct sembuf wait_operation = {0,-1,0};
 struct sembuf signal_operation = {0,1,0};
 int semid1;
 int semid2;
+int semmutex;
 int shmid1;
 int shmid2;
 
@@ -29,6 +31,10 @@ void remove_semaphore() {
         exit(EXIT_FAILURE);
     }
     if (semctl(semid2, 0, IPC_RMID) == -1) {
+        perror("semctl: remove_semaphore");
+        exit(EXIT_FAILURE);
+    }
+    if (semctl(semmutex, 0, IPC_RMID) == -1) {
         perror("semctl: remove_semaphore");
         exit(EXIT_FAILURE);
     }
@@ -159,9 +165,16 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    semmutex = semget(SEMKEYMUTEX,1,IPC_CREAT | IPC_EXCL | 0666);
+
+    if(semmutex == -1){
+        perror("semget");
+        exit(EXIT_FAILURE);
+    }
+
     semctl(semid1, 0, SETVAL, 0);
     semctl(semid2, 0, SETVAL, 0);
-
+    semctl(semmutex,0,SETVAL,1);
 
 
     while(1){
