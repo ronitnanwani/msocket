@@ -238,7 +238,7 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 }
 
 
-ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sockaddr_in* dest_addr, socklen_t dest_len) {
+ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sockaddr* dest_addr, socklen_t dest_len) {
     // Attach to shared memory
 
     key_t shm_key = ftok("file1.txt", 65);
@@ -262,9 +262,10 @@ ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sock
     //do bad file descriptor check
 
     // Check if destination IP and port match the bound IP and port
+    struct sockaddr_in* dest_add = (struct sockaddr_in*)(dest_addr);
     char dest_ip[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,&dest_addr->sin_addr.s_addr,dest_ip,INET_ADDRSTRLEN);
-    short dest_port = ntohs(dest_addr->sin_port);
+    inet_ntop(AF_INET,&(dest_add->sin_addr.s_addr),dest_ip,INET_ADDRSTRLEN);
+    short dest_port = ntohs(dest_add->sin_port);
     
     semop(semmutex,&wait_operation,1);
     if((strcmp(dest_ip,shared_memory->sockets[entry_index].ip_address)!=0) || (dest_port!=shared_memory->sockets[entry_index].port)){
@@ -302,7 +303,7 @@ ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sock
 
 
 // Function to receive a message on an MTP socket
-int m_recvfrom(int sockfd, char *buf, size_t len,int flags,struct sockaddr* sender_addr,socklen_t* sender_addr_len) {
+ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* sender_addr,socklen_t* sender_addr_len) {
     // Attach to shared memory
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key, 0, 0666);
@@ -331,6 +332,7 @@ int m_recvfrom(int sockfd, char *buf, size_t len,int flags,struct sockaddr* send
         semop(semmutex,&signal_operation,1);
         return -1;
     }
+
 
     strcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;

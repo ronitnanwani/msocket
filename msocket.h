@@ -83,6 +83,6 @@ typedef struct{
 
 int m_socket(int, int, int);
 int m_bind(int, char*,short,char*,short);
-ssize_t m_sendto(int , const char* , size_t , int , struct sockaddr_in* , socklen_t);
-int m_recvfrom(int , char *, size_t ,int ,struct sockaddr* ,socklen_t*);
+ssize_t m_sendto(int , const void* , size_t , int , struct sockaddr* , socklen_t);
+ssize_t m_recvfrom(int , void *, size_t ,int ,struct sockaddr* ,socklen_t*);
 int m_close(int);

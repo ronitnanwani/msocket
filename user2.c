@@ -8,7 +8,7 @@ int main(){
     serv_addr.sin_family=AF_INET;
     serv_addr.sin_port=htons(6001);
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
-    int retval = m_sendto(sockfd,"Hello there",11,0,&serv_addr,sizeof(serv_addr));
+    int retval = m_sendto(sockfd,"Hello there",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
     m_close(sockfd);
     return 0;
 }
