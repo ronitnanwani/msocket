@@ -1,11 +1,13 @@
 #include "msocket.h"
 
 int main(){
-    key_t shm_key = ftok("file1.txt", 65);
-    int shm_id = shmget(shm_key,0, 0666);
-    if (shm_id == -1) {
-        m_errno=errno;
-        perror("shmget");
-        return -1;
-    }
+    int sockfd = m_socket(AF_INET,SOCK_MTP, 0);
+    m_bind(sockfd,"127.0.0.1",6001,"127.0.0.1",6000);
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr,0,sizeof(serv_addr));
+    serv_addr.sin_family=AF_INET;
+    serv_addr.sin_port=htons(6001);
+    inet_aton("127.0.0.1",&serv_addr.sin_addr);
+    int retval = m_sendto(sockfd,"Hello there",11,0,&serv_addr,sizeof(serv_addr));
+    return 0;
 }

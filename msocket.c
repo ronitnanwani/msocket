@@ -157,9 +157,10 @@ int m_socket(int domain, int type, int protocol) {
     shared_memory->sockets[free_entry_index].rwnd.ptr1=0;
     shared_memory->sockets[free_entry_index].rwnd.ptr2=4;
     int retval = free_entry_index;
+    printf("###########################################################\n");
     printf("After m_socket() call\n");
     printSM(shared_memory);
-    semop(semmutex,&wait_operation,1);
+    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
     shmdt(sockinfo);
 
@@ -185,10 +186,6 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
         return -1;
     }
 
-    // Find the socket entry corresponding to sockfd
-
-    int entry_index = sockfd;
-
     key_t shm_key2 = ftok("file2.txt",66);
     int shmid2 = shmget(shm_key2,0,0666);
 
@@ -205,14 +202,20 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
         perror("shmat");
         return -1;
     }
+    // Find the socket entry corresponding to sockfd
+
+    int entry_index = sockfd;
+
 
     sockinfo->sockid=shared_memory->sockets[entry_index].udp_socket_id;
     sockinfo->port=srcport;
     sockinfo->err_no=0;
     strcpy(sockinfo->ip,srcip);
 
+
     int semid1 = semget(SEMKEY1, 1, 0);
     int semid2 = semget(SEMKEY2,1,0);
+    int semmutex = semget(SEMKEYMUTEX,1,0);
 
     semop(semid1,&signal_operation,1);
     semop(semid2,&wait_operation,1);
@@ -222,10 +225,13 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
         return -1;
     }
 
+    semop(semmutex,&wait_operation,1);
     shared_memory->sockets[entry_index].port = destport;
     strcpy(shared_memory->sockets[entry_index].ip_address,destip);
+    printf("###########################################################\n");
     printf("After m_bind() call\n");
     printSM(shared_memory);
+    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
     shmdt(sockinfo);
     return 0;
@@ -234,6 +240,7 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
 ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sockaddr_in* dest_addr, socklen_t dest_len) {
     // Attach to shared memory
+
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key, 0, 0666);
     if (shm_id == -1) {
@@ -248,17 +255,21 @@ ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sock
         return -1;
     }
 
+    int semmutex = semget(SEMKEYMUTEX,1,0);
+
     int entry_index = sockfd;
 
     //do bad file descriptor check
 
     // Check if destination IP and port match the bound IP and port
     char dest_ip[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET,dest_addr->sin_addr.s_addr,dest_ip,INET_ADDRSTRLEN);
-    short dest_port = dest_addr->sin_port;
-
+    inet_ntop(AF_INET,&dest_addr->sin_addr.s_addr,dest_ip,INET_ADDRSTRLEN);
+    short dest_port = ntohs(dest_addr->sin_port);
+    
+    semop(semmutex,&wait_operation,1);
     if((strcmp(dest_ip,shared_memory->sockets[entry_index].ip_address)!=0) || (dest_port!=shared_memory->sockets[entry_index].port)){
         m_errno = ENOTBOUND; // Not bound to destination IP/port
+        semop(semmutex,&signal_operation,1);
         return -1;
     }
 
@@ -266,6 +277,7 @@ ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sock
 
     if(shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs].ismsg==1){
         m_errno=ENOBUFS;
+        semop(semmutex,&signal_operation,1);
         return -1;
     }
 
@@ -279,7 +291,10 @@ ssize_t m_sendto(int sockfd, const char* buf, size_t len, int flags, struct sock
     strcpy(msgtowrite.data,buf);
     shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs]=msgtowrite;
     shared_memory->sockets[entry_index].wrs = (shared_memory->sockets[entry_index].wrs+1)%MAX_BUFFER_SIZE_SENDER;
-
+    printf("###########################################################\n");
+    printf("After m_sendto call\n");
+    printSM(shared_memory);
+    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
 
     return strlen(buf);
@@ -305,13 +320,15 @@ int m_recvfrom(int sockfd, char *buf, size_t len,int flags,struct sockaddr* send
         return -1;
     }
 
+    int semmutex = semget(SEMKEYMUTEX,1,0);
     // Find the socket entry corresponding to sockfd
     int entry_index = sockfd;
 
     //do badfd check
-
+    semop(semmutex,&wait_operation,1);
     if(shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg == 0){
         m_errno = ENOMSG; // No message available
+        semop(semmutex,&signal_operation,1);
         return -1;
     }
 
@@ -319,6 +336,7 @@ int m_recvfrom(int sockfd, char *buf, size_t len,int flags,struct sockaddr* send
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;
 
+    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
 
     return strlen(buf); // Return number of bytes received
@@ -330,7 +348,7 @@ int m_recvfrom(int sockfd, char *buf, size_t len,int flags,struct sockaddr* send
 
 
 int m_close(int sockfd) {
-    // Attach to shared memory
+
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key, 0, 0666);
     if (shm_id == -1) {
@@ -346,23 +364,18 @@ int m_close(int sockfd) {
     }
 
     // Find the socket entry corresponding to sockfd
-    int entry_index = -1;
-    for (int i = 0; i < MAX_SOCKETS; ++i) {
-        if (shared_memory->sockets[i].udp_socket_id == sockfd) {
-            entry_index = i;
-            break;
-        }
-    }
+    int entry_index = sockfd;
+    //handle badfd error
 
-    // If sockfd is not found, return error
-    if (entry_index == -1) {
-        m_errno = EBADF; // Bad file descriptor
-        return -1;
-    }
 
+    int semmutex = semget(SEMKEYMUTEX,1,0);
+
+    semop(semmutex,&wait_operation,1);
     // Mark the socket entry as free
     shared_memory->sockets[entry_index].is_free = 1;
-
+    printf("###########################################################\n");
+    printSM(shared_memory);
+    semop(semmutex,&signal_operation,1);
     // Detach shared memory
     shmdt(shared_memory);
 
