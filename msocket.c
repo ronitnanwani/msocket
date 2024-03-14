@@ -7,44 +7,44 @@ struct sembuf wait_operation = {0,-1,0};
 struct sembuf signal_operation = {0,1,0};
 
 int printmsgheader(message_header m){
-    // printf("Message header\n");
-    // printf("Sequence number %d\n",m.sequence_number);
-    // printf("Message type %d\n",m.ty);
-    // printf("Message last sent time %ld\n",m.lastsenttime);
+    printf("Message header\n");
+    printf("Sequence number %d\n",m.sequence_number);
+    printf("Message type %d\n",m.ty);
+    printf("Message last sent time %ld\n",m.lastsenttime);
 }
 
 int printmsg(Message m){
-    // printf("Message\n");
-    // printf("Is msg %d\n",m.ismsg);
-    // printmsgheader(m.msg_header);
-    // printf("%s\n",m.data);
+    printf("Message\n");
+    printf("Is msg %d\n",m.ismsg);
+    printmsgheader(m.msg_header);
+    printf("%s\n",m.data);
 }
 
 int printWindow(Window w){
-    // printf("Window\n");
-    // printf("%d\n",w.size);
-    // printf("Ptr1 = %d\n",w.ptr1);
-    // printf("Ptr2 = %d\n",w.ptr2);
+    printf("Window\n");
+    printf("%d\n",w.size);
+    printf("Ptr1 = %d\n",w.ptr1);
+    printf("Ptr2 = %d\n",w.ptr2);
 }
 
 int printmtpsocket(MTPSocket s){
-    // printf("isfree %d\n",s.is_free);
-    // printf("process_id %d\n",s.process_id);
-    // printf("udp_socket_id %d\n",s.udp_socket_id);
-    // printf("Dest ip %s\n",s.ip_address);
-    // printf("Dest port %hd\n",s.port);
-    // printf("Curr = %d\n",s.curr);
-    // printf("Start receive = %d\n",s.str);
-    // printf("Current index to write to = %d\n",s.wrs);
+    printf("isfree %d\n",s.is_free);
+    printf("process_id %d\n",s.process_id);
+    printf("udp_socket_id %d\n",s.udp_socket_id);
+    printf("Dest ip %s\n",s.ip_address);
+    printf("Dest port %hd\n",s.port);
+    printf("Curr = %d\n",s.curr);
+    printf("Start receive = %d\n",s.str);
+    printf("Current index to write to = %d\n",s.wrs);
 
     for(int i=0;i<MAX_BUFFER_SIZE_SENDER;i++){
-        // printf("%dth message\n",i);
-        // printmsg(s.send_buffer[i]);
+        printf("%dth message\n",i);
+        printmsg(s.send_buffer[i]);
     }
     for(int i=0;i<MAX_BUFFER_SIZE_RECEIVER;i++){
-        // printf("%dth message\n",i);
-        // printf("Is message %d\n",s.receive_buffer[i].ismsg);
-        // printf("%s\n",s.receive_buffer[i].data);
+        printf("%dth message\n",i);
+        printf("Is message %d\n",s.receive_buffer[i].ismsg);
+        printf("%s\n",s.receive_buffer[i].data);
     }
     printWindow(s.swnd);
     printWindow(s.rwnd);
@@ -52,7 +52,7 @@ int printmtpsocket(MTPSocket s){
 
 int printSM(SharedMemory* sm){
     for(int i=0;i<MAX_SOCKETS;i++){
-        // printf("Mtp Socket %d\n",i);
+        printf("Mtp Socket %d\n",i);
         printmtpsocket(sm->sockets[i]);
     }
 }
@@ -329,6 +329,7 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
     semop(semmutex,&wait_operation,1);
     if(shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg == 0){
         m_errno = ENOMSG; // No message available
+        printf("No message available\n");
         semop(semmutex,&signal_operation,1);
         return -1;
     }
@@ -336,15 +337,17 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
 
     strcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;
+    printf("str = %d\n",shared_memory->sockets[entry_index].str);
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;
 
     semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
 
+    printf("###########################################################\n");
+    printf("After m_recvfrom() call\n");
+
     return strlen(buf); // Return number of bytes received
 }
-
-
 
 
 

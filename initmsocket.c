@@ -159,6 +159,7 @@ void* thread_R(void* arg) {
 
                     }
                     else if(msg.msg_header.ty == 1){
+                        printf("In actual message\n");
                         // Actual message
                         int seq = msg.msg_header.sequence_number;
                         int ptr1 = receiverwindow.ptr1;
@@ -171,8 +172,11 @@ void* thread_R(void* arg) {
 
                         int wrr = shared_memory->sockets[i].wrr;
                         int flag = 0;
-                        for(int j=ptr1;j!=ptr2;j=(j+1)%16){
+                        printf("ptr1 = %d, ptr2 = %d\n",ptr1,ptr2);
+                        for(int k=0;k<receiverwindow.size;k++){
+                            int j = (ptr1+k)%16;
                             if(shared_memory->sockets[i].receive_temp_buffer[j].ismsg == 1){
+                                printf("Message %s\n",shared_memory->sockets[i].receive_temp_buffer[j].data);
                                 strcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data);
                                 shared_memory->sockets[i].receive_buffer[wrr].ismsg = 1;
                                 wrr = (wrr+1)%5;
@@ -188,11 +192,16 @@ void* thread_R(void* arg) {
 
 
                         int cnt = 0;
+                        printf("wrr = %d\n",wrr);
+                        printf("(wrr+cnt)mod5 = %d\n",(wrr+cnt)%5);
+                        printf("ismsg = %d\n",shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg);
                         while(cnt<=5 && shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg == 0){
                             cnt++;
                         }
 
-                        receiverwindow.ptr2 = (receiverwindow.ptr1+cnt-1)%16;
+                        printf("cnt = %d\n",cnt);
+                        if(cnt ==0) receiverwindow.ptr2 = receiverwindow.ptr1;
+                        else receiverwindow.ptr2 = (receiverwindow.ptr1+cnt-1)%16;
                         receiverwindow.size = cnt;
 
                         shared_memory->sockets[i].rwnd = receiverwindow;

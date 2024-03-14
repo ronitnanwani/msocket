@@ -9,7 +9,21 @@ int main(){
     serv_addr.sin_port=htons(6001);
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
     int len = sizeof(serv_addr);
-    int retval = m_sendto(sockfd,"Hello there",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    int i=0;
+    while(i<8){
+        int retval;
+        if(i<5){
+            retval = m_sendto(sockfd,"Hello there",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+            printf("Sent: %s\n","Hello there");
+        }
+        else{
+            retval = m_sendto(sockfd,"Hello there2",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+            printf("Sent: %s\n","Hello there2");
+        }
+        i++;
+    }
+
+    sleep(20);
     
     return 0;
 }
