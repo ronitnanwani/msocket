@@ -1,11 +1,13 @@
 #include "msocket.h"
 #define SEMKEY1 6969
 #define SEMKEY2 6970
+#define SEMKEYMUTEX 6971
 
 struct sembuf wait_operation = {0,-1,0};
 struct sembuf signal_operation = {0,1,0};
 int semid1;
 int semid2;
+int semmutex;
 int shmid1;
 int shmid2;
 
@@ -29,6 +31,10 @@ void remove_semaphore() {
         exit(EXIT_FAILURE);
     }
     if (semctl(semid2, 0, IPC_RMID) == -1) {
+        perror("semctl: remove_semaphore");
+        exit(EXIT_FAILURE);
+    }
+    if (semctl(semmutex, 0, IPC_RMID) == -1) {
         perror("semctl: remove_semaphore");
         exit(EXIT_FAILURE);
     }
@@ -106,12 +112,91 @@ void* thread_R(void* arg) {
 // Thread S function
 void* thread_S(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
+
     while (1) {
-        // Send messages and handle timeouts and retransmissions
-        // Update shared memory (e.g., message_buffer, swnd) accordingly
-        // This thread should handle sending messages, timeouts, and retransmissions
-        // Sleep for demonstration purpose (replace with actual send code)
-        sleep(1);
+        usleep((T*1000000)/2);
+        semop(semmutex,&wait_operation,1);
+        for(int i=0;i<MAX_SOCKETS;i++){
+            if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
+                Window senderwindow = shared_memory->sockets[i].swnd;
+                if(senderwindow.size!=0){
+                    int temp1 = senderwindow.ptr1;
+                    int temp2 = senderwindow.ptr2;
+
+                    int flag=0;
+
+                    while(temp1!=(temp2+1)%16){         //handling messages within the window
+                        for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+
+                            // if it is a message within the sender window then do as needed
+                            if((shared_memory->sockets[i].send_buffer[j].ismsg) && (shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1) && (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime!=-1)){
+                                time_t currtime;
+                                time(&currtime);
+
+                                //if it has been timed out then set flag
+                                if((currtime - shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime)>=T){
+                                    flag=1;
+                                }
+                                break;
+                            }
+                        }
+                        temp1 = (temp1+1)%16;
+                    }
+
+
+                    //message in the sender window has timed out then resend all the messages in the sender window
+                    if(flag){
+                        temp1 = senderwindow.ptr1;
+                        temp2 = senderwindow.ptr2;
+                        while(temp1!=(temp2+1)%16){         //handling messages within the window
+                            for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+
+                                // if it is a message within the sender window then do as needed
+                                if((shared_memory->sockets[i].send_buffer[j].ismsg) && (shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1) && (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime!=-1)){
+                                    time_t currtime;
+                                    time(&currtime);
+
+                                    shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
+
+                                    struct sockaddr_in servaddr;
+                                    memset(&servaddr,0,sizeof(servaddr));
+                                    char ip[INET_ADDRSTRLEN];
+                                    strcpy(ip,shared_memory->sockets[i].ip_address);
+                                    inet_aton(ip,&servaddr.sin_addr);
+                                    servaddr.sin_family = AF_INET;
+                                    servaddr.sin_port=htons(shared_memory->sockets[i].port);
+                                    shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
+                                    Message msgtosend = shared_memory->sockets[i].send_buffer[j];
+                                    sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                                    break;
+                                }
+                            }
+                            temp1 = (temp1+1)%16;
+                        }    
+                    }
+                }
+
+                //handling first send for messages newly come into the buffer
+                for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                    if((shared_memory->sockets[i].send_buffer[j].ismsg) & (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime == -1)){     //sending this msg for the first time
+                        time_t currtime;
+                        time(&currtime);
+                        struct sockaddr_in servaddr;
+                        memset(&servaddr,0,sizeof(servaddr));
+                        char ip[INET_ADDRSTRLEN];
+                        strcpy(ip,shared_memory->sockets[i].ip_address);
+                        inet_aton(ip,&servaddr.sin_addr);
+                        servaddr.sin_family = AF_INET;
+                        servaddr.sin_port=htons(shared_memory->sockets[i].port);
+                        shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
+                        Message msgtosend = shared_memory->sockets[i].send_buffer[j];
+                        sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                    }   
+                }
+            }
+        }
+        semop(semmutex,&signal_operation,1);
+        
     }
     return NULL;
 }
@@ -205,9 +290,16 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    semmutex = semget(SEMKEYMUTEX,1,IPC_CREAT | IPC_EXCL | 0666);
+
+    if(semmutex == -1){
+        perror("semget");
+        exit(EXIT_FAILURE);
+    }
+
     semctl(semid1, 0, SETVAL, 0);
     semctl(semid2, 0, SETVAL, 0);
-
+    semctl(semmutex,0,SETVAL,1);
 
 
     while(1){

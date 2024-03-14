@@ -13,7 +13,7 @@
 #include <sys/sem.h> 
 #include <signal.h>   
 #include <sys/select.h>
-  
+#include <time.h>  
 
 // Global error variable
 int m_errno;
@@ -29,20 +29,28 @@ int m_errno;
 
 typedef struct {
     int sequence_number;
-    int ty;          //0 for message and 1 for ack
+    int ty;          //1 for message and 2 for ack
+    time_t lastsenttime;
 } message_header;
+
 // Structure to represent a message in the buffer
 typedef struct {
+    int ismsg;      //0 if not msg 1 if msg
     message_header msg_header;
     char data[1024]; // Assuming message size is 1KB
 } Message;
 
+// Structure to represent a message in the buffer
+typedef struct {
+    int ismsg;       // 0 if not msg 1 if msg
+    char data[1024]; // Assuming message size is 1KB
+} MessageRecv;
+
 // Structure to represent sender/receiver window
 typedef struct {
-    // Define sender/receiver window structure here
-    // For example:
     int size;
-    int sequence_numbers[MAX_SIZE]; // Array of sequence numbers
+    int ptr1;
+    int ptr2;
 }Window;
 
 // Structure to represent an MTP socket
@@ -53,8 +61,11 @@ typedef struct {
     char ip_address[INET_ADDRSTRLEN]; // Assuming IPv4 address (e.g., "xxx.xxx.xxx.xxx\0")
     unsigned short port;
     // Other necessary fields
+    int curr;       //next sequence number to assign to a message coming inside the send buffer;
+    int wrs;        //current index to write to in the sender buffer;
+    int str;         //which index to start reading from in the receiving buffer
     Message send_buffer[MAX_BUFFER_SIZE_SENDER];
-    Message receive_buffer[MAX_BUFFER_SIZE_RECEIVER];
+    MessageRecv receive_buffer[MAX_BUFFER_SIZE_RECEIVER];
     Window swnd;
     Window rwnd;
 } MTPSocket;
@@ -73,6 +84,6 @@ typedef struct{
 
 int m_socket(int, int, int);
 int m_bind(int, char*,short,char*,short);
-int m_sendto(int, const void *, size_t, int, const struct sockaddr_in *, socklen_t);
-int m_recvfrom(int, void *, size_t, int, struct sockaddr_in *, socklen_t*);
+ssize_t m_sendto(int , const void* , size_t , int , struct sockaddr* , socklen_t);
+ssize_t m_recvfrom(int , void *, size_t ,int ,struct sockaddr* ,socklen_t*);
 int m_close(int);
