@@ -258,14 +258,14 @@ int main() {
 
     while(1){
         semop(semid1,&wait_operation,1);
-            if(sockinfo->sockid == 0){      //m_socket call
+            if((sockinfo->sockid == 0) && (sockinfo->port==0)){      //m_socket call
                 int udp_socket_id = socket(AF_INET, SOCK_DGRAM, 0);
                 if(udp_socket_id == -1){
                     sockinfo->err_no=errno;
                 }
                 sockinfo->sockid = udp_socket_id;
             }
-            else{                           //m_bind call
+            else if((sockinfo->sockid != 0) && (sockinfo->port != -1)){                           //m_bind call
                 int sockfd = sockinfo->sockid;
                 struct sockaddr_in servaddr;
                 memset(&servaddr, 0, sizeof(servaddr)); 
@@ -285,6 +285,16 @@ int main() {
                     sockinfo->sockid=-1;
                 }
 
+            }
+            else if((sockinfo->sockid != 0) && (sockinfo->port == -1)){     //m_close() call
+                int sockfd = sockinfo->sockid;
+                if(close(sockfd) == -1){
+                    perror("close");
+                    sockinfo->err_no=errno;
+                }
+                else{
+                    sockinfo->sockid=0;     //successfully closed
+                }
             }
         semop(semid2,&signal_operation,1);  
     }

@@ -203,10 +203,12 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
         return -1;
     }
     // Find the socket entry corresponding to sockfd
+    int semmutex = semget(SEMKEYMUTEX,1,0);
 
     int entry_index = sockfd;
 
 
+    semop(semmutex,&wait_operation,1);
     sockinfo->sockid=shared_memory->sockets[entry_index].udp_socket_id;
     sockinfo->port=srcport;
     sockinfo->err_no=0;
@@ -215,7 +217,6 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
     int semid1 = semget(SEMKEY1, 1, 0);
     int semid2 = semget(SEMKEY2,1,0);
-    int semmutex = semget(SEMKEYMUTEX,1,0);
 
     semop(semid1,&signal_operation,1);
     semop(semid2,&wait_operation,1);
@@ -225,7 +226,6 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
         return -1;
     }
 
-    semop(semmutex,&wait_operation,1);
     shared_memory->sockets[entry_index].port = destport;
     strcpy(shared_memory->sockets[entry_index].ip_address,destip);
     printf("###########################################################\n");
@@ -365,6 +365,27 @@ int m_close(int sockfd) {
         return -1;
     }
 
+    key_t shm_key2 = ftok("file2.txt",66);
+    int shmid2 = shmget(shm_key2,0,0666);
+
+    if(shmid2 == -1){
+        m_errno=errno;
+        perror("shmget");
+        return -1;
+    }
+
+    SockInfo* sockinfo = (SockInfo*)shmat(shmid2,NULL,0);
+
+    if(sockinfo == (void*)(-1)){
+        m_errno=errno;
+        perror("shmat");
+        return -1;
+    }
+
+    int semid1 = semget(SEMKEY1, 1, 0);
+    int semid2 = semget(SEMKEY2,1,0);
+
+
     // Find the socket entry corresponding to sockfd
     int entry_index = sockfd;
     //handle badfd error
@@ -373,21 +394,28 @@ int m_close(int sockfd) {
     int semmutex = semget(SEMKEYMUTEX,1,0);
 
     semop(semmutex,&wait_operation,1);
-    // Mark the socket entry as free
-    shared_memory->sockets[entry_index].is_free = 1;
+    sockinfo->sockid=shared_memory->sockets[entry_index].udp_socket_id;
+    sockinfo->port=-1;
+    semop(semid1,&signal_operation,1);
+    semop(semid2,&wait_operation,1);
+
+    int close_result;
+    if(sockinfo->sockid==0){        //successfully removed
+        shared_memory->sockets[entry_index].is_free = 1;
+        close_result=0;
+    }
+    else{                           //error caused in closing the socket
+        m_errno = sockinfo->err_no;
+        close_result=-1;
+    }
+
+
     printf("###########################################################\n");
+    printf("After m_close() call\n");
     printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     // Detach shared memory
     shmdt(shared_memory);
 
-    // Close the UDP socket
-    int close_result = close(sockfd);
-    if (close_result == -1) {
-        m_errno=errno;
-        perror("close");
-        return -1;
-    }
-
-    return 0; // Return success
+    return close_result;
 }

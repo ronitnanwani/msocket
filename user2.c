@@ -2,7 +2,7 @@
 
 int main(){
     int sockfd = m_socket(AF_INET,SOCK_MTP, 0);
-    m_bind(sockfd,"127.0.0.1",6000,"127.0.0.1",6001);
+    m_bind(sockfd,"127.0.0.1",6001,"127.0.0.1",6000);
     struct sockaddr_in serv_addr;
     memset(&serv_addr,0,sizeof(serv_addr));
     serv_addr.sin_family=AF_INET;
