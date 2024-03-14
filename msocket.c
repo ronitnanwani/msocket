@@ -151,11 +151,11 @@ int m_socket(int domain, int type, int protocol) {
     memset(shared_memory->sockets[free_entry_index].send_buffer,0,sizeof(shared_memory->sockets[free_entry_index].send_buffer));
     memset(shared_memory->sockets[free_entry_index].receive_buffer,0,sizeof(shared_memory->sockets[free_entry_index].receive_buffer));
     shared_memory->sockets[free_entry_index].swnd.size=5;
-    shared_memory->sockets[free_entry_index].swnd.ptr1=0;
-    shared_memory->sockets[free_entry_index].swnd.ptr2=4;
+    shared_memory->sockets[free_entry_index].swnd.ptr1=1;
+    shared_memory->sockets[free_entry_index].swnd.ptr2=5;
     shared_memory->sockets[free_entry_index].rwnd.size=5;
-    shared_memory->sockets[free_entry_index].rwnd.ptr1=0;
-    shared_memory->sockets[free_entry_index].rwnd.ptr2=4;
+    shared_memory->sockets[free_entry_index].rwnd.ptr1=1;
+    shared_memory->sockets[free_entry_index].rwnd.ptr2=5;
     int retval = free_entry_index;
     printf("###########################################################\n");
     printf("After m_socket() call\n");

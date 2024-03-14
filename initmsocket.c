@@ -53,61 +53,179 @@ void signal_handler(int signal) {
 // Thread R function
 void* thread_R(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
+    int fnospace[MAX_SOCKETS];
+    memset(fnospace,0,sizeof(fnospace));
     while (1) {
-        // Receive messages from UDP socket and handle them
-        // Update shared memory (e.g., message_buffer, rwnd) accordingly
-        // This thread should handle incoming messages from UDP socket
 
         fd_set readfds;
         FD_ZERO(&readfds);
-        int socketidx[MAX_SOCKETS];
-        int cnt = 0;
-        semop(semid2,&wait_operation,1);
+        int maxfd = 0;
+        semop(semmutex,&wait_operation,1);
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){
                 FD_SET(shared_memory->sockets[i].udp_socket_id,&readfds);
-                socketidx[cnt] = i;
-                cnt++;
+                if(shared_memory->sockets[i].udp_socket_id>maxfd){
+                    maxfd = shared_memory->sockets[i].udp_socket_id;
+                }
             }
         }
-        semop(semid1,&signal_operation,1);
+        semop(semmutex,&signal_operation,1);
 
-        struct timeval timeout;
-        timeout.tv_sec = T;
-        timeout.tv_usec = 0;
+        struct timeval tv;
+        tv.tv_sec = T;
+        tv.tv_usec = 0;
 
-        int activity = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
+        int activity = select(maxfd+1,&readfds,NULL,NULL,&tv);
 
-        if(activity < 0){
-            perror("Select error");
+        if(activity<0){
+            perror("select");
             pthread_exit(NULL);
         }
 
-        semop(semid2,&wait_operation,1);
-        for(int i=0;i<cnt;i++){
-            if(FD_ISSET(shared_memory->sockets[socketidx[i]].udp_socket_id,&readfds)){
-                struct sockaddr_in cliaddr;
-                int len = sizeof(cliaddr);
-                Message msg;
-                int n = recvfrom(shared_memory->sockets[socketidx[i]].udp_socket_id,&msg,sizeof(msg),MSG_DONTWAIT,(struct sockaddr*)&cliaddr,&len);
-                if(n<0){
-                    if(errno == EWOULDBLOCK){
-                        continue;
-                    }
-                    else{
-                        perror("recvfrom");
-                        pthread_exit(NULL);
+        if(activity==0){
+            semop(semmutex,&wait_operation,1);
+            for(int i=0;i<MAX_SOCKETS;i++){
+                if(fnospace[i]){
+                    if(shared_memory->sockets[i].is_free == 0){
+                        if(shared_memory->sockets[i].rwnd.size != 0){
+                            fnospace[i] = 0;
+
+                            Message ackmsg;
+                            ackmsg.msg_header.sequence_number = shared_memory->sockets[i].rwnd.ptr1;
+                            ackmsg.msg_header.ty = 2;
+                            memset(ackmsg.data,'\0',sizeof(ackmsg.data));
+                            sprintf(ackmsg.data,"%d",shared_memory->sockets[i].rwnd.size);
+
+                            struct sockaddr_in servaddr;
+                            servaddr.sin_family = AF_INET;
+                            servaddr.sin_port = htons(shared_memory->sockets[i].port);
+                            inet_aton(shared_memory->sockets[i].ip_address,&servaddr.sin_addr);
+                            sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&ackmsg),sizeof(ackmsg),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                        }
                     }
                 }
-
-                // Handle message
             }
+            semop(semmutex,&signal_operation,1);
+            continue;
         }
-        semop(semid1,&signal_operation,1);
 
-    }
-    return NULL;
-}
+        semop(semmutex,&wait_operation,1);
+        for (int i = 0; i < MAX_SOCKETS; i++)
+        {
+            if(shared_memory->sockets[i].is_free == 0){
+                if(FD_ISSET(shared_memory->sockets[i].udp_socket_id,&readfds)){
+                    struct sockaddr_in cliaddr;
+                    int len = sizeof(cliaddr);
+                    Message msg;
+                    int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
+
+                    if(n<0){
+                        perror("recvfrom");
+                        continue;
+                    }
+
+                    // If client not same as the one who sent the message, ignore
+                    if(strcmp(shared_memory->sockets[i].ip_address,inet_ntoa(cliaddr.sin_addr))!=0 || shared_memory->sockets[i].port!=ntohs(cliaddr.sin_port)){
+                        continue;
+                    }
+
+                    if(n==0){
+                        continue;
+                    }
+                    
+                    Window senderwindow = shared_memory->sockets[i].swnd;
+                    Window receiverwindow = shared_memory->sockets[i].rwnd;
+                    
+                    if(msg.msg_header.ty == 2){
+                        // ACK message
+                        int ack = msg.msg_header.sequence_number;
+
+                        for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                            if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number <= ack){
+                                shared_memory->sockets[i].send_buffer[j].ismsg = 0;
+                                shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime = -1;
+                            }
+                        }
+
+                        senderwindow.ptr1 = (ack)%16;
+
+                        // Convert the message data to int
+                        int recvsizeleft = atoi(msg.data);
+                        
+                        senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft-1)%16;
+                        senderwindow.size = recvsizeleft;
+
+                        shared_memory->sockets[i].swnd = senderwindow;
+
+                    }
+                    else if(msg.msg_header.ty == 1){
+                        // Actual message
+                        int seq = msg.msg_header.sequence_number;
+                        int ptr1 = receiverwindow.ptr1;
+                        int ptr2 = receiverwindow.ptr2;
+
+                        if(ptr1<=seq && seq<=ptr2 && shared_memory->sockets[i].receive_temp_buffer[seq].ismsg == 0){
+                            strcpy(shared_memory->sockets[i].receive_temp_buffer[seq].data,msg.data);
+                            shared_memory->sockets[i].receive_temp_buffer[seq].ismsg = 1;
+                        }
+
+                        int wrr = shared_memory->sockets[i].wrr;
+                        int flag = 0;
+                        for(int j=ptr1;j!=ptr2;j=(j+1)%16){
+                            if(shared_memory->sockets[i].receive_temp_buffer[j].ismsg == 1){
+                                strcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data);
+                                shared_memory->sockets[i].receive_buffer[wrr].ismsg = 1;
+                                wrr = (wrr+1)%5;
+                                shared_memory->sockets[i].wrr = wrr;
+                                shared_memory->sockets[i].receive_temp_buffer[j].ismsg = 0;
+                                receiverwindow.ptr1 = (receiverwindow.ptr1+1)%16;
+                                flag = 1;
+                            }
+                            else{
+                                break;
+                            }
+                        }
+
+
+                        int cnt = 0;
+                        while(cnt<=5 && shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg == 0){
+                            cnt++;
+                        }
+
+                        receiverwindow.ptr2 = (receiverwindow.ptr1+cnt-1)%16;
+                        receiverwindow.size = cnt;
+
+                        shared_memory->sockets[i].rwnd = receiverwindow;
+
+                        if(flag){
+                            Message ackmsg;
+                            ackmsg.msg_header.sequence_number = receiverwindow.ptr1;
+                            ackmsg.msg_header.ty = 2;
+                            memset(ackmsg.data,'\0',sizeof(ackmsg.data));
+                            sprintf(ackmsg.data,"%d",receiverwindow.size);
+                            ackmsg.msg_header.lastsenttime = time(NULL);
+
+                            struct sockaddr_in servaddr;
+                            memset(&servaddr,0,sizeof(servaddr));
+                            servaddr.sin_family = AF_INET;
+                            servaddr.sin_port = htons(shared_memory->sockets[i].port);
+                            inet_aton(shared_memory->sockets[i].ip_address,&servaddr.sin_addr);
+                            sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&ackmsg),sizeof(ackmsg),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                        }
+
+                        if(cnt == 0){
+                            fnospace[i] = 1;
+                        }
+                        
+                    }
+
+                }
+            }
+        
+        }
+        semop(semmutex,&signal_operation,1);
+    }  
+} 
 
 // Thread S function
 void* thread_S(void* arg) {

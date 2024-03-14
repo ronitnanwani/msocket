@@ -24,6 +24,7 @@ int m_errno;
 #define MAX_BUFFER_SIZE_SENDER 10
 #define MAX_BUFFER_SIZE_RECEIVER 5
 #define ENOTBOUND 1002
+#define ENOSPACE 1003
 #define T 5
 #define p 0.05
 
@@ -64,8 +65,10 @@ typedef struct {
     int curr;       //next sequence number to assign to a message coming inside the send buffer;
     int wrs;        //current index to write to in the sender buffer;
     int str;         //which index to start reading from in the receiving buffer
+    int wrr;        //current index to write to in the receiver buffer;
     Message send_buffer[MAX_BUFFER_SIZE_SENDER];
     MessageRecv receive_buffer[MAX_BUFFER_SIZE_RECEIVER];
+    MessageRecv receive_temp_buffer[16];
     Window swnd;
     Window rwnd;
 } MTPSocket;
