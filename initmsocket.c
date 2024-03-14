@@ -390,9 +390,13 @@ int main() {
 
     // Create threads
     pthread_t thread_R_id, thread_S_id, garbage_collector_id;
-    pthread_create(&thread_R_id, NULL, thread_R, (void*)shared_memory);
-    pthread_create(&thread_S_id, NULL, thread_S, (void*)shared_memory);
-    pthread_create(&garbage_collector_id, NULL, garbage_collector, (void*)shared_memory);
+    pthread_attr_t attr;
+    // Make attr detached
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&thread_R_id,&attr, thread_R, (void*)shared_memory);
+    pthread_create(&thread_S_id,&attr, thread_S, (void*)shared_memory);
+    pthread_create(&garbage_collector_id,&attr, garbage_collector, (void*)shared_memory);
 
     semid1 = semget(SEMKEY1,1,IPC_CREAT | IPC_EXCL | 0666);
 
