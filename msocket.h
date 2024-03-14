@@ -11,7 +11,9 @@
 #include <arpa/inet.h>      
 #include <string.h>   
 #include <sys/sem.h> 
-#include <signal.h>     
+#include <signal.h>   
+#include <sys/select.h>
+  
 
 // Global error variable
 int m_errno;

@@ -51,8 +51,54 @@ void* thread_R(void* arg) {
         // Receive messages from UDP socket and handle them
         // Update shared memory (e.g., message_buffer, rwnd) accordingly
         // This thread should handle incoming messages from UDP socket
-        // Sleep for demonstration purpose (replace with actual receive code)
-        sleep(1);
+
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        int socketidx[MAX_SOCKETS];
+        int cnt = 0;
+        semop(semid2,&wait_operation,1);
+        for(int i=0;i<MAX_SOCKETS;i++){
+            if(shared_memory->sockets[i].is_free == 0){
+                FD_SET(shared_memory->sockets[i].udp_socket_id,&readfds);
+                socketidx[cnt] = i;
+                cnt++;
+            }
+        }
+        semop(semid1,&signal_operation,1);
+
+        struct timeval timeout;
+        timeout.tv_sec = T;
+        timeout.tv_usec = 0;
+
+        int activity = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
+
+        if(activity < 0){
+            perror("Select error");
+            pthread_exit(NULL);
+        }
+
+        semop(semid2,&wait_operation,1);
+        for(int i=0;i<cnt;i++){
+            if(FD_ISSET(shared_memory->sockets[socketidx[i]].udp_socket_id,&readfds)){
+                struct sockaddr_in cliaddr;
+                int len = sizeof(cliaddr);
+                Message msg;
+                int n = recvfrom(shared_memory->sockets[socketidx[i]].udp_socket_id,&msg,sizeof(msg),MSG_DONTWAIT,(struct sockaddr*)&cliaddr,&len);
+                if(n<0){
+                    if(errno == EWOULDBLOCK){
+                        continue;
+                    }
+                    else{
+                        perror("recvfrom");
+                        pthread_exit(NULL);
+                    }
+                }
+
+                // Handle message
+            }
+        }
+        semop(semid1,&signal_operation,1);
+
     }
     return NULL;
 }
