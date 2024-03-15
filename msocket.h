@@ -25,7 +25,7 @@ int m_errno;
 #define MAX_BUFFER_SIZE_RECEIVER 5
 #define ENOTBOUND 1002
 #define ENOSPACE 1003
-#define T 10
+#define T 5
 #define p 0.05
 
 typedef struct {

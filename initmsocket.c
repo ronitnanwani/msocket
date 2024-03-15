@@ -70,7 +70,7 @@ void* thread_R(void* arg) {
                 }
             }
         }
-        semop(semmutex,&signal_operation,1);
+        // semop(semmutex,&signal_operation,1);
 
         struct timeval tv;
         tv.tv_sec = T;
@@ -84,7 +84,7 @@ void* thread_R(void* arg) {
         }
 
         if(activity==0){
-            semop(semmutex,&wait_operation,1);
+            // semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(fnospace[i]){
                     if(shared_memory->sockets[i].is_free == 0){
@@ -121,7 +121,7 @@ void* thread_R(void* arg) {
         }
 
 
-        semop(semmutex,&wait_operation,1);
+        // semop(semmutex,&wait_operation,1);
         for (int i = 0; i < MAX_SOCKETS; i++)
         {      
             if(shared_memory->sockets[i].is_free == 0){
@@ -139,12 +139,12 @@ void* thread_R(void* arg) {
 
                     // If client not same as the one who sent the message, ignore
                     if(strcmp(shared_memory->sockets[i].ip_address,inet_ntoa(cliaddr.sin_addr))!=0 || shared_memory->sockets[i].port!=ntohs(cliaddr.sin_port)){
-                        semop(semmutex,&signal_operation,1);
+                        // semop(semmutex,&signal_operation,1);
                         continue;
                     }
 
                     if(n==0){
-                        semop(semmutex,&signal_operation,1);
+                        // semop(semmutex,&signal_operation,1);
                         continue;
                     }
                     
@@ -154,11 +154,10 @@ void* thread_R(void* arg) {
                     if(msg.msg_header.ty == 2){
                         // ACK message
                         int ack = msg.msg_header.sequence_number; //received till this index number
-
+                        printf("Received till this index = %d\n",ack);
                         int temp1 = senderwindow.ptr1;
                         
                         while(temp1 != (ack+1)%16){
-                            
                             for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
                                 if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1){
                                     shared_memory->sockets[i].send_buffer[j].ismsg = 0;
@@ -175,19 +174,19 @@ void* thread_R(void* arg) {
                         //     }
                         // }
 
-                        senderwindow.ptr1 = (ack)%16;
+                        senderwindow.ptr1 = (ack+1)%16;
 
                         // Convert the message data to int
                         int recvsizeleft = atoi(msg.data);
                         
-                        senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft-1+16)%16;
+                        senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft+15)%16;
                         senderwindow.size = recvsizeleft;
 
                         shared_memory->sockets[i].swnd = senderwindow;
 
                     }
                     else if(msg.msg_header.ty == 1){
-                        printf("In actual message\n");
+                        // printf("In actual message\n");
                         // Actual message
                         int seq = msg.msg_header.sequence_number;
                         int ptr1 = receiverwindow.ptr1;
@@ -212,12 +211,12 @@ void* thread_R(void* arg) {
 
                         int wrr = shared_memory->sockets[i].wrr;
                         flag = 0;
-                        printf("ptr1 = %d, ptr2 = %d\n",ptr1,ptr2);
+                        // printf("ptr1 = %d, ptr2 = %d\n",ptr1,ptr2);
                         for(int k=0;k<receiverwindow.size;k++){
                             int j = (ptr1+k)%16;
                             if(shared_memory->sockets[i].receive_temp_buffer[j].ismsg == 1){
-                                printf("Message %s\n",shared_memory->sockets[i].receive_temp_buffer[j].data);
-                                printf("Writing at index %d\n",wrr);
+                                // printf("Message %s\n",shared_memory->sockets[i].receive_temp_buffer[j].data);
+                                // printf("Writing at index %d\n",wrr);
                                 strcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data);
                                 shared_memory->sockets[i].receive_buffer[wrr].ismsg = 1;
                                 wrr = (wrr+1)%5;
@@ -233,16 +232,17 @@ void* thread_R(void* arg) {
 
 
                         int cnt = 0;
-                        printf("wrr = %d\n",wrr);
-                        printf("(wrr+cnt)mod5 = %d\n",(wrr+cnt)%5);
-                        printf("ismsg = %d\n",shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg);
+                        // printf("wrr = %d\n",wrr);
+                        // printf("(wrr+cnt)mod5 = %d\n",(wrr+cnt)%5);
+                        // printf("ismsg = %d\n",shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg);
+                        
                         while(cnt<5 && shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg == 0){
                             cnt++;
                         }
 
-                        printf("cnt = %d\n",cnt);
+                        // printf("cnt = %d\n",cnt);
                         if(cnt ==0) receiverwindow.ptr2 = receiverwindow.ptr1;
-                        else receiverwindow.ptr2 = (receiverwindow.ptr1+cnt-1)%16;
+                        else receiverwindow.ptr2 = (receiverwindow.ptr1+cnt+15)%16;
                         receiverwindow.size = cnt;
 
                         shared_memory->sockets[i].rwnd = receiverwindow;
@@ -285,13 +285,16 @@ void* thread_S(void* arg) {
         usleep((T*1000000)/4);
         // printf("Here in thread s\n");
         semop(semmutex,&wait_operation,1);
-        // printf("Here in thread s after aquiring semaphore\n");
+        printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
                 Window senderwindow = shared_memory->sockets[i].swnd;
+                // printf("Sender window size = %d\n",senderwindow.size);
+                // printf("Sender window ptr1 = %d and ptr2 = %d\n",senderwindow.ptr1,senderwindow.ptr2);
                 if(senderwindow.size!=0){
                     int temp1 = senderwindow.ptr1;
                     int temp2 = senderwindow.ptr2;
+                    // printf("Here Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
 
                     int flag=0;
 
@@ -321,6 +324,8 @@ void* thread_S(void* arg) {
                     if(flag){
                         temp1 = senderwindow.ptr1;
                         temp2 = senderwindow.ptr2;
+                        // printf("########## flag = 1 #############\n");
+                        // printf("Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
                         while(temp1!=(temp2+1)%16){         //handling messages within the window
                             for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
 
@@ -352,6 +357,7 @@ void* thread_S(void* arg) {
                 //handling first send for messages newly come into the buffer
                 for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
                     if((shared_memory->sockets[i].send_buffer[j].ismsg) & (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime == -1)){     //sending this msg for the first time
+                        // printf("Index %d data %s\n",j,shared_memory->sockets[i].send_buffer[j].data);
                         time_t currtime;
                         time(&currtime);
                         struct sockaddr_in servaddr;
@@ -364,7 +370,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
-                        printf("Sending this message %s\n",msgtosend.data);
+                        // printf("Sending this message %s\n",msgtosend.data);
                     }   
                 }
             }

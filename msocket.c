@@ -146,17 +146,17 @@ int m_socket(int domain, int type, int protocol) {
     shared_memory->sockets[free_entry_index].is_free = 0;
     shared_memory->sockets[free_entry_index].process_id = getpid();
     shared_memory->sockets[free_entry_index].udp_socket_id = sockinfo->sockid;
-    shared_memory->sockets[free_entry_index].curr = 1;
+    shared_memory->sockets[free_entry_index].curr = 0;
     shared_memory->sockets[free_entry_index].str = 0;
     shared_memory->sockets[free_entry_index].wrs = 0;
     memset(shared_memory->sockets[free_entry_index].send_buffer,0,sizeof(shared_memory->sockets[free_entry_index].send_buffer));
     memset(shared_memory->sockets[free_entry_index].receive_buffer,0,sizeof(shared_memory->sockets[free_entry_index].receive_buffer));
     shared_memory->sockets[free_entry_index].swnd.size=5;
-    shared_memory->sockets[free_entry_index].swnd.ptr1=1;
-    shared_memory->sockets[free_entry_index].swnd.ptr2=5;
+    shared_memory->sockets[free_entry_index].swnd.ptr1=0;
+    shared_memory->sockets[free_entry_index].swnd.ptr2=4;
     shared_memory->sockets[free_entry_index].rwnd.size=5;
-    shared_memory->sockets[free_entry_index].rwnd.ptr1=1;
-    shared_memory->sockets[free_entry_index].rwnd.ptr2=5;
+    shared_memory->sockets[free_entry_index].rwnd.ptr1=0;
+    shared_memory->sockets[free_entry_index].rwnd.ptr2=4;
     int retval = free_entry_index;
     // printf("###########################################################\n");
     // printf("After m_socket() call\n");
@@ -342,7 +342,7 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
 
     strcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;
-    printf("str = %d\n",shared_memory->sockets[entry_index].str);
+    // printf("str = %d\n",shared_memory->sockets[entry_index].str);
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;
 
     shmdt(shared_memory);
