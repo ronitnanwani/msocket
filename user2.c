@@ -12,20 +12,19 @@ int main(){
     char buffer[1024];
     memset(buffer,'\0',1024);
     sleep(10);
-    int i=0;
-    // while(i<8){
-    //     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-    //     if(retval>0){
-    //         printf("Received: %s\n",buffer);
-    //         i++;
-    //     }
-    //     else{
-    //         perror("Error: ");
-    //     }
-    // }
+    // int i=0;
+    // // while(i<8){
+    // //     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    // //     if(retval>0){
+    // //         printf("Received: %s\n",buffer);
+    // //         i++;
+    // //     }
+    // //     else{
+    // //         perror("Error: ");
+    // //     }
+    // // }
 
     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
     printf("Received: %s\n",buffer);
-    m_close(sockfd);
     return 0;
 }

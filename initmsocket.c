@@ -246,8 +246,10 @@ void* thread_S(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
 
     while (1) {
-        usleep((T*1000000)/2);
+        usleep((T*1000000)/4);
+        printf("Here in thread s\n");
         semop(semmutex,&wait_operation,1);
+        printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
                 Window senderwindow = shared_memory->sockets[i].swnd;
@@ -265,9 +267,12 @@ void* thread_S(void* arg) {
                                 time_t currtime;
                                 time(&currtime);
 
+                                printf("Difference between %ld and %ld is %ld\n",currtime,shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime,currtime-shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime);
+
                                 //if it has been timed out then set flag
                                 if((currtime - shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime)>=T){
                                     flag=1;
+                                    printf("Flag is set to 1\n");
                                 }
                                 break;
                             }
@@ -323,6 +328,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                        printf("Sending this message %s\n",msgtosend.data);
                     }   
                 }
             }
@@ -363,7 +369,7 @@ int main() {
     key_t shm_key = ftok("file1.txt", 65);
     shmid1 = shmget(shm_key, sizeof(SharedMemory), IPC_CREAT | 0666);
 
-    printf("shmid1 = %d\n",shmid1);
+    // printf("shmid1 = %d\n",shmid1);
 
     if (shmid1 == -1) {
         perror("shmget");
@@ -402,18 +408,6 @@ int main() {
     sockinfo->port=0;
     sockinfo->sockid=0;
 
-
-
-    // Create threads
-    pthread_t thread_R_id, thread_S_id, garbage_collector_id;
-    pthread_attr_t attr;
-    // Make attr detached
-    pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&thread_R_id,&attr, thread_R, (void*)shared_memory);
-    pthread_create(&thread_S_id,&attr, thread_S, (void*)shared_memory);
-    pthread_create(&garbage_collector_id,&attr, garbage_collector, (void*)shared_memory);
-
     semid1 = semget(SEMKEY1,1,IPC_CREAT | IPC_EXCL | 0666);
 
     if(semid1 == -1){
@@ -438,6 +432,18 @@ int main() {
     semctl(semid1, 0, SETVAL, 0);
     semctl(semid2, 0, SETVAL, 0);
     semctl(semmutex,0,SETVAL,1);
+
+
+    // Create threads
+    pthread_t thread_R_id, thread_S_id, garbage_collector_id;
+    pthread_attr_t attr;
+    // Make attr detached
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&thread_R_id,&attr, thread_R, (void*)shared_memory);
+    pthread_create(&thread_S_id,&attr, thread_S, (void*)shared_memory);
+    pthread_create(&garbage_collector_id,&attr, garbage_collector, (void*)shared_memory);
+
 
 
     while(1){
@@ -482,15 +488,6 @@ int main() {
             }
         semop(semid2,&signal_operation,1);  
     }
-    // // Wait for threads to finish (not really applicable in this case)
-    // pthread_join(thread_R_id, NULL);
-    // pthread_join(thread_S_id, NULL);
-    // pthread_join(garbage_collector_id, NULL);
-    // Detach shared memory
     shmdt(shared_memory);
-
-    // Remove shared memory segment if needed
-    // shmctl(shm_id, IPC_RMID, NULL);
-
     return 0;
 }

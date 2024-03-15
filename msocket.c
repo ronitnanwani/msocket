@@ -129,8 +129,8 @@ int m_socket(int domain, int type, int protocol) {
     sockinfo->err_no=0;
     strcpy(sockinfo->ip,"\0");
 
-
-
+    semop(semid1,&signal_operation,1);
+    semop(semid2,&wait_operation,1);
 
     if(sockinfo->sockid == -1){
         semop(semmutex,&signal_operation,1);
@@ -154,9 +154,9 @@ int m_socket(int domain, int type, int protocol) {
     shared_memory->sockets[free_entry_index].rwnd.ptr1=1;
     shared_memory->sockets[free_entry_index].rwnd.ptr2=5;
     int retval = free_entry_index;
-    printf("###########################################################\n");
-    printf("After m_socket() call\n");
-    printSM(shared_memory);
+    // printf("###########################################################\n");
+    // printf("After m_socket() call\n");
+    // printSM(shared_memory);
     shmdt(shared_memory);
     shmdt(sockinfo);
     semop(semmutex,&signal_operation,1);
@@ -225,9 +225,9 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
     shared_memory->sockets[entry_index].port = destport;
     strcpy(shared_memory->sockets[entry_index].ip_address,destip);
-    printf("###########################################################\n");
-    printf("After m_bind() call\n");
-    printSM(shared_memory);
+    // printf("###########################################################\n");
+    // printf("After m_bind() call\n");
+    // printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
     shmdt(sockinfo);
@@ -289,9 +289,9 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
     strcpy(msgtowrite.data,buf);
     shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs]=msgtowrite;
     shared_memory->sockets[entry_index].wrs = (shared_memory->sockets[entry_index].wrs+1)%MAX_BUFFER_SIZE_SENDER;
-    printf("###########################################################\n");
-    printf("After m_sendto call\n");
-    printSM(shared_memory);
+    // printf("###########################################################\n");
+    // printf("After m_sendto call\n");
+    // printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
 
@@ -411,9 +411,9 @@ int m_close(int sockfd) {
     }
 
 
-    printf("###########################################################\n");
-    printf("After m_close() call\n");
-    printSM(shared_memory);
+    // printf("###########################################################\n");
+    // printf("After m_close() call\n");
+    // printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     // Detach shared memory
     shmdt(shared_memory);

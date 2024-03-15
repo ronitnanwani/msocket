@@ -24,6 +24,5 @@ int main(){
     // }
 
     int retval = m_sendto(sockfd,"Hello there",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-    
     return 0;
 }
