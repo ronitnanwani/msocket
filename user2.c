@@ -11,20 +11,26 @@ int main(){
     // int retval = m_sendto(sockfd,"Hello there",11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
     char buffer[1024];
     memset(buffer,'\0',1024);
-    sleep(10);
-    // int i=0;
-    // // while(i<8){
-    // //     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-    // //     if(retval>0){
-    // //         printf("Received: %s\n",buffer);
-    // //         i++;
-    // //     }
-    // //     else{
-    // //         perror("Error: ");
-    // //     }
-    // // }
-
-    int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-    printf("Received: %s\n",buffer);
+    // sleep(10);
+    int i=0;
+    while(1){
+        int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+        if(retval>0){
+            printf("Received: %s\n",buffer);
+        }
+        // else{
+        //     printf("Retval is less than 0\n");
+        // }
+    }
+    // while(1){
+    //     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    //     if(retval<0){
+    //         continue;
+    //     }
+    //     else{
+    //         printf("Received: %s\n",buffer);
+    //         break;
+    //     }
+    // }
     return 0;
 }

@@ -117,6 +117,8 @@ int m_socket(int domain, int type, int protocol) {
     // If no free entry is available, return error
     if (free_entry_index == -1) {
         m_errno = ENOBUFS;
+        shmdt(shared_memory);
+        shmdt(sockinfo);
         semop(semmutex,&signal_operation,1);
         return -1;
     }
@@ -133,6 +135,8 @@ int m_socket(int domain, int type, int protocol) {
     semop(semid2,&wait_operation,1);
 
     if(sockinfo->sockid == -1){
+        shmdt(shared_memory);
+        shmdt(sockinfo);
         semop(semmutex,&signal_operation,1);
         m_errno=errno;
         return -1;
@@ -220,6 +224,8 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
     if(sockinfo->sockid == -1){
         m_errno=errno;
+        shmdt(shared_memory);
+        shmdt(sockinfo);
         return -1;
     }
 
@@ -267,6 +273,7 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
     semop(semmutex,&wait_operation,1);
     if((strcmp(dest_ip,shared_memory->sockets[entry_index].ip_address)!=0) || (dest_port!=shared_memory->sockets[entry_index].port)){
         m_errno = ENOTBOUND; // Not bound to destination IP/port
+        shmdt(shared_memory);
         semop(semmutex,&signal_operation,1);
         return -1;
     }
@@ -275,6 +282,7 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
 
     if(shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs].ismsg==1){
         m_errno=ENOBUFS;
+        shmdt(shared_memory);
         semop(semmutex,&signal_operation,1);
         return -1;
     }
@@ -341,8 +349,8 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
     semop(semmutex,&signal_operation,1);
 
 
-    printf("###########################################################\n");
-    printf("After m_recvfrom() call\n");
+    // printf("###########################################################\n");
+    // printf("After m_recvfrom() call\n");
 
     return strlen(buf); // Return number of bytes received
 }

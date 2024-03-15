@@ -88,14 +88,23 @@ void* thread_R(void* arg) {
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(fnospace[i]){
                     if(shared_memory->sockets[i].is_free == 0){
-                        if(shared_memory->sockets[i].rwnd.size != 0){
+                        if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
-
                             Message ackmsg;
-                            ackmsg.msg_header.sequence_number = shared_memory->sockets[i].rwnd.ptr1;
+                            ackmsg.msg_header.sequence_number = (shared_memory->sockets[i].rwnd.ptr1+15)%16;
                             ackmsg.msg_header.ty = 2;
                             memset(ackmsg.data,'\0',sizeof(ackmsg.data));
-                            sprintf(ackmsg.data,"%d",shared_memory->sockets[i].rwnd.size);
+                            
+                            // Calculate the size of the receiver window
+                            int cnt = 0;
+                            while(cnt<5 && shared_memory->sockets[i].receive_buffer[(shared_memory->sockets[i].wrr+cnt)%5].ismsg == 0){
+                                cnt++;
+                            }
+
+                            shared_memory->sockets[i].rwnd.ptr2 = (shared_memory->sockets[i].rwnd.ptr1+cnt+15)%16;
+
+                            ackmsg.msg_header.lastsenttime = time(NULL);
+                            sprintf(ackmsg.data,"%d",cnt);
 
                             struct sockaddr_in servaddr;
                             servaddr.sin_family = AF_INET;
@@ -110,6 +119,7 @@ void* thread_R(void* arg) {
             printf("Timeout\n");
             continue;
         }
+
 
         semop(semmutex,&wait_operation,1);
         for (int i = 0; i < MAX_SOCKETS; i++)
@@ -143,21 +153,34 @@ void* thread_R(void* arg) {
                     
                     if(msg.msg_header.ty == 2){
                         // ACK message
-                        int ack = msg.msg_header.sequence_number;
+                        int ack = msg.msg_header.sequence_number; //received till this index number
 
-                        for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
-                            if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number <= ack){
-                                shared_memory->sockets[i].send_buffer[j].ismsg = 0;
-                                shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime = -1;
+                        int temp1 = senderwindow.ptr1;
+                        
+                        while(temp1 != (ack+1)%16){
+                            
+                            for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                                if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1){
+                                    shared_memory->sockets[i].send_buffer[j].ismsg = 0;
+                                    shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime = -1;
+                                }
                             }
+                            temp1 = (temp1+1)%16;
                         }
+
+                        // for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                        //     if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number <= ack){
+                        //         shared_memory->sockets[i].send_buffer[j].ismsg = 0;
+                        //         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime = -1;
+                        //     }
+                        // }
 
                         senderwindow.ptr1 = (ack)%16;
 
                         // Convert the message data to int
                         int recvsizeleft = atoi(msg.data);
                         
-                        senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft-1)%16;
+                        senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft-1+16)%16;
                         senderwindow.size = recvsizeleft;
 
                         shared_memory->sockets[i].swnd = senderwindow;
@@ -170,18 +193,31 @@ void* thread_R(void* arg) {
                         int ptr1 = receiverwindow.ptr1;
                         int ptr2 = receiverwindow.ptr2;
 
-                        if(ptr1<=seq && seq<=ptr2 && shared_memory->sockets[i].receive_temp_buffer[seq].ismsg == 0){
+                        int temp1=ptr1;
+                        int temp2=ptr2;
+                        int flag=0;
+
+                        while(temp1 != ((temp2+1)%16)){
+                            if(seq == temp1){
+                                flag=1;
+                                break;
+                            }
+                            temp1 = (temp1+1)%16;
+                        }
+
+                        if(flag && shared_memory->sockets[i].receive_temp_buffer[seq].ismsg == 0){
                             strcpy(shared_memory->sockets[i].receive_temp_buffer[seq].data,msg.data);
                             shared_memory->sockets[i].receive_temp_buffer[seq].ismsg = 1;
                         }
 
                         int wrr = shared_memory->sockets[i].wrr;
-                        int flag = 0;
+                        flag = 0;
                         printf("ptr1 = %d, ptr2 = %d\n",ptr1,ptr2);
                         for(int k=0;k<receiverwindow.size;k++){
                             int j = (ptr1+k)%16;
                             if(shared_memory->sockets[i].receive_temp_buffer[j].ismsg == 1){
                                 printf("Message %s\n",shared_memory->sockets[i].receive_temp_buffer[j].data);
+                                printf("Writing at index %d\n",wrr);
                                 strcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data);
                                 shared_memory->sockets[i].receive_buffer[wrr].ismsg = 1;
                                 wrr = (wrr+1)%5;
@@ -200,7 +236,7 @@ void* thread_R(void* arg) {
                         printf("wrr = %d\n",wrr);
                         printf("(wrr+cnt)mod5 = %d\n",(wrr+cnt)%5);
                         printf("ismsg = %d\n",shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg);
-                        while(cnt<=5 && shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg == 0){
+                        while(cnt<5 && shared_memory->sockets[i].receive_buffer[(wrr+cnt)%5].ismsg == 0){
                             cnt++;
                         }
 
@@ -213,7 +249,7 @@ void* thread_R(void* arg) {
 
                         if(flag){
                             Message ackmsg;
-                            ackmsg.msg_header.sequence_number = receiverwindow.ptr1;
+                            ackmsg.msg_header.sequence_number = (receiverwindow.ptr1+15)%16;
                             ackmsg.msg_header.ty = 2;
                             memset(ackmsg.data,'\0',sizeof(ackmsg.data));
                             sprintf(ackmsg.data,"%d",receiverwindow.size);
@@ -247,9 +283,9 @@ void* thread_S(void* arg) {
 
     while (1) {
         usleep((T*1000000)/4);
-        printf("Here in thread s\n");
+        // printf("Here in thread s\n");
         semop(semmutex,&wait_operation,1);
-        printf("Here in thread s after aquiring semaphore\n");
+        // printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
                 Window senderwindow = shared_memory->sockets[i].swnd;
@@ -267,12 +303,12 @@ void* thread_S(void* arg) {
                                 time_t currtime;
                                 time(&currtime);
 
-                                printf("Difference between %ld and %ld is %ld\n",currtime,shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime,currtime-shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime);
+                                // printf("Difference between %ld and %ld is %ld\n",currtime,shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime,currtime-shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime);
 
                                 //if it has been timed out then set flag
                                 if((currtime - shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime)>=T){
                                     flag=1;
-                                    printf("Flag is set to 1\n");
+                                    // printf("Flag is set to 1\n");
                                 }
                                 break;
                             }
@@ -293,7 +329,7 @@ void* thread_S(void* arg) {
                                     time_t currtime;
                                     time(&currtime);
 
-                                    shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
+                                    // shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
 
                                     struct sockaddr_in servaddr;
                                     memset(&servaddr,0,sizeof(servaddr));
