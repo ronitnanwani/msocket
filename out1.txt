@@ -2,120 +2,8 @@
 After m_socket() call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 
 Dest port 0
 Curr = 1
@@ -224,6 +112,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 1
+process_id 0
+udp_socket_id 0
+Dest ip 
+Dest port 0
+Curr = 0
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+0
+Ptr1 = 0
+Ptr2 = 0
+Window
+0
+Ptr1 = 0
+Ptr2 = 0
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -2804,120 +2804,8 @@ Ptr2 = 0
 After m_bind() call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 1
@@ -3026,6 +2914,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 1
+process_id 0
+udp_socket_id 0
+Dest ip 
+Dest port 0
+Curr = 0
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+0
+Ptr1 = 0
+Ptr2 = 0
+Window
+0
+Ptr1 = 0
+Ptr2 = 0
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -5606,120 +5606,8 @@ Ptr2 = 0
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 2
@@ -5828,6 +5716,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -8409,120 +8409,8 @@ Sent: Hello there
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 3
@@ -8631,6 +8519,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -11212,120 +11212,8 @@ Sent: Hello there
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 4
@@ -11434,6 +11322,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -14015,120 +14015,8 @@ Sent: Hello there
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 5
@@ -14237,6 +14125,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -16818,120 +16818,8 @@ Sent: Hello there
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 6
@@ -17040,6 +16928,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -19621,120 +19621,8 @@ Sent: Hello there
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 7
@@ -19843,6 +19731,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -22424,120 +22424,8 @@ Sent: Hello there2
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 8
@@ -22646,6 +22534,118 @@ Window
 5
 Ptr1 = 1
 Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
 Mtp Socket 2
 isfree 1
 process_id 0
@@ -25227,120 +25227,8 @@ Sent: Hello there2
 After m_sendto call
 Mtp Socket 0
 isfree 0
-process_id 15577
-udp_socket_id 3
-Dest ip 127.0.0.1
-Dest port 6000
-Curr = 1
-Start receive = 0
-Current index to write to = 0
-0th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-1th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-2th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-3th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-4th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-5th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-6th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-7th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-8th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-9th message
-Message
-Is msg 0
-Message header
-Sequence number 0
-Message type 0
-Message last sent time 0
-
-0th message
-Is message 0
-
-1th message
-Is message 0
-
-2th message
-Is message 0
-
-3th message
-Is message 0
-
-4th message
-Is message 0
-
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Window
-5
-Ptr1 = 1
-Ptr2 = 5
-Mtp Socket 1
-isfree 0
-process_id 15610
-udp_socket_id 4
+process_id 14519
+udp_socket_id 0
 Dest ip 127.0.0.1
 Dest port 6001
 Curr = 9
@@ -25410,6 +25298,118 @@ Sequence number 8
 Message type 1
 Message last sent time -1
 Hello there2
+8th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+9th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+0th message
+Is message 0
+
+1th message
+Is message 0
+
+2th message
+Is message 0
+
+3th message
+Is message 0
+
+4th message
+Is message 0
+
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Window
+5
+Ptr1 = 1
+Ptr2 = 5
+Mtp Socket 1
+isfree 0
+process_id 14559
+udp_socket_id 0
+Dest ip 127.0.0.1
+Dest port 6000
+Curr = 1
+Start receive = 0
+Current index to write to = 0
+0th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+1th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+2th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+3th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+4th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+5th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+6th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
+7th message
+Message
+Is msg 0
+Message header
+Sequence number 0
+Message type 0
+Message last sent time 0
+
 8th message
 Message
 Is msg 0
@@ -27877,4 +27877,5 @@ Message last sent time 0
 8th message
 Message
 Is msg 0
-M
+Message header
+Sequence number 0

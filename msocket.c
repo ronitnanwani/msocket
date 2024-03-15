@@ -88,7 +88,7 @@ int m_socket(int domain, int type, int protocol) {
 
     // Attach to shared memory
     key_t shm_key = ftok("file1.txt", 65);
-    int shm_id = shmget(shm_key, 0, 0666);
+    int shm_id = shmget(shm_key, 0, 0);
     if (shm_id == -1) {
         m_errno=errno;
         perror("shmget");
@@ -102,8 +102,8 @@ int m_socket(int domain, int type, int protocol) {
         return -1;
     }
 
-    
     semop(semmutex,&wait_operation,1);
+    
     // Find a free entry in the shared memory
     int free_entry_index = -1;
     for (int i = 0; i < MAX_SOCKETS; ++i) {
@@ -131,9 +131,6 @@ int m_socket(int domain, int type, int protocol) {
 
 
 
-    semop(semid1,&signal_operation,1);
-    semop(semid2,&wait_operation,1);
-
 
     if(sockinfo->sockid == -1){
         semop(semmutex,&signal_operation,1);
@@ -160,9 +157,9 @@ int m_socket(int domain, int type, int protocol) {
     printf("###########################################################\n");
     printf("After m_socket() call\n");
     printSM(shared_memory);
-    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
     shmdt(sockinfo);
+    semop(semmutex,&signal_operation,1);
 
 
     return retval;
@@ -187,7 +184,7 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
     }
 
     key_t shm_key2 = ftok("file2.txt",66);
-    int shmid2 = shmget(shm_key2,0,0666);
+    int shmid2 = shmget(shm_key2,0,0);
 
     if(shmid2 == -1){
         m_errno=errno;
@@ -306,13 +303,14 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
 ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* sender_addr,socklen_t sender_addr_len) {
     // Attach to shared memory
     key_t shm_key = ftok("file1.txt", 65);
-    int shm_id = shmget(shm_key, 0, 0666);
+    int shm_id = shmget(shm_key,0, 0666);
 
     if (shm_id == -1) {
         m_errno=errno;
         perror("shmget");
         return -1;
     }
+    int semmutex = semget(SEMKEYMUTEX,1,0);
 
     SharedMemory* shared_memory = (SharedMemory*)shmat(shm_id, NULL, 0);
     if (shared_memory == (void*)-1) {
@@ -321,15 +319,14 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
         return -1;
     }
 
-    int semmutex = semget(SEMKEYMUTEX,1,0);
+    semop(semmutex,&wait_operation,1); 
     // Find the socket entry corresponding to sockfd
     int entry_index = sockfd;
 
     //do badfd check
-    semop(semmutex,&wait_operation,1);
     if(shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg == 0){
         m_errno = ENOMSG; // No message available
-        printf("No message available\n");
+        shmdt(shared_memory);
         semop(semmutex,&signal_operation,1);
         return -1;
     }
@@ -340,8 +337,9 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
     printf("str = %d\n",shared_memory->sockets[entry_index].str);
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;
 
-    semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
+    semop(semmutex,&signal_operation,1);
+
 
     printf("###########################################################\n");
     printf("After m_recvfrom() call\n");

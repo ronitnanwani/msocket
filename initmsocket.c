@@ -63,6 +63,7 @@ void* thread_R(void* arg) {
         semop(semmutex,&wait_operation,1);
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){
+                // printf("Socket %d is not free\n",i);
                 FD_SET(shared_memory->sockets[i].udp_socket_id,&readfds);
                 if(shared_memory->sockets[i].udp_socket_id>maxfd){
                     maxfd = shared_memory->sockets[i].udp_socket_id;
@@ -106,12 +107,13 @@ void* thread_R(void* arg) {
                 }
             }
             semop(semmutex,&signal_operation,1);
+            printf("Timeout\n");
             continue;
         }
 
         semop(semmutex,&wait_operation,1);
         for (int i = 0; i < MAX_SOCKETS; i++)
-        {
+        {      
             if(shared_memory->sockets[i].is_free == 0){
                 if(FD_ISSET(shared_memory->sockets[i].udp_socket_id,&readfds)){
                     struct sockaddr_in cliaddr;
@@ -120,16 +122,19 @@ void* thread_R(void* arg) {
                     int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
 
                     if(n<0){
+                        semop(semmutex,&signal_operation,1);
                         perror("recvfrom");
                         continue;
                     }
 
                     // If client not same as the one who sent the message, ignore
                     if(strcmp(shared_memory->sockets[i].ip_address,inet_ntoa(cliaddr.sin_addr))!=0 || shared_memory->sockets[i].port!=ntohs(cliaddr.sin_port)){
+                        semop(semmutex,&signal_operation,1);
                         continue;
                     }
 
                     if(n==0){
+                        semop(semmutex,&signal_operation,1);
                         continue;
                     }
                     
@@ -357,6 +362,8 @@ int main() {
 
     key_t shm_key = ftok("file1.txt", 65);
     shmid1 = shmget(shm_key, sizeof(SharedMemory), IPC_CREAT | 0666);
+
+    printf("shmid1 = %d\n",shmid1);
 
     if (shmid1 == -1) {
         perror("shmget");
