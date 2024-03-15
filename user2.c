@@ -16,7 +16,7 @@ int main(){
     while(1){
         int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
         if(retval>0){
-            printf("Received: %s\n",buffer);
+            fprintf(stderr,"Received: %s\n",buffer);
         }
         // else{
         //     printf("Retval is less than 0\n");

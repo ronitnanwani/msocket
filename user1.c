@@ -10,20 +10,20 @@ int main(){
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
     int len = sizeof(serv_addr);
     int i=0;
-    while(i<20){
+    while(i<23){
         int retval;
         char sendm[100];
         sprintf(sendm,"Hello there %d",i);
         if(i<5){
             retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-            printf("Sent: %s\n",sendm);
+            fprintf(stderr,"Sent: %s\n",sendm);
         }
         else{
             retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
             if(retval<0){
                 continue;
             }
-            printf("Sent: %s\n",sendm);
+            fprintf(stderr,"Sent: %s\n",sendm);
         }
         i++;
     }
