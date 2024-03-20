@@ -1,12 +1,20 @@
 #include "msocket.h"
 
-int main(){
+int main(int argv,char* argc[]){
+    if(argv!=3){
+        printf("Usage: ./user1 <myport> <dest_port>\n");
+        exit(1);
+    }
+
+    int myport = atoi(argc[1]);
+    int dest_port = atoi(argc[2]);
+
     int sockfd = m_socket(AF_INET,SOCK_MTP, 0);
-    m_bind(sockfd,"127.0.0.1",6000,"127.0.0.1",6001);
+    m_bind(sockfd,"127.0.0.1",myport,"127.0.0.1",dest_port);
     struct sockaddr_in serv_addr;
     memset(&serv_addr,0,sizeof(serv_addr));
     serv_addr.sin_family=AF_INET;
-    serv_addr.sin_port=htons(6001);
+    serv_addr.sin_port=htons(dest_port);
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
     int len = sizeof(serv_addr);
     int i=0;
@@ -35,9 +43,10 @@ int main(){
         }
     }
 
+    fprintf(stderr,"Done\n");
     while(1){
 
     }
 
-    return 0;
+    exit(0);
 }

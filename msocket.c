@@ -346,7 +346,7 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
     struct sockaddr_in* tempo = (struct sockaddr_in*)(sender_addr);
     inet_pton(AF_INET,shared_memory->sockets[entry_index].ip_address,&tempo->sin_addr.s_addr);
     tempo->sin_family=AF_INET;
-    tempo->sin_port=shared_memory->sockets[entry_index].port;
+    tempo->sin_port=htons(shared_memory->sockets[entry_index].port);
 
     sender_addr = (struct sockaddr*)(tempo);
     (*sender_addr_len)=sizeof((*sender_addr));
