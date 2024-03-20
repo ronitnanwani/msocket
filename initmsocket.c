@@ -87,8 +87,8 @@ void* thread_R(void* arg) {
         if(activity==0){
             semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
-                if(shared_memory->sockets[i].is_free == 0 && (fnospace[i] == 1 || (time(NULL)-lastacksenttime[i])>=30)){
-                    if(shared_memory->sockets[i].is_free == 0){
+                if(shared_memory->sockets[i].is_free == 0){
+                    if(fnospace[i] || ((time(NULL)-lastacksenttime[i]>=T) && shared_memory->sockets[i].rwnd.size>0)){
                         if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
                             Message ackmsg;
@@ -103,6 +103,7 @@ void* thread_R(void* arg) {
                             }
 
                             shared_memory->sockets[i].rwnd.ptr2 = (shared_memory->sockets[i].rwnd.ptr1+cnt+15)%16;
+                            shared_memory->sockets[i].rwnd.size = cnt;
 
                             ackmsg.msg_header.lastsenttime = time(NULL);
                             lastacksenttime[i] = ackmsg.msg_header.lastsenttime;
