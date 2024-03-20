@@ -54,7 +54,7 @@ void signal_handler(int signal) {
 void* thread_R(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
     int fnospace[MAX_SOCKETS];
-    int lastacksenttime[MAX_SOCKETS];
+    time_t lastacksenttime[MAX_SOCKETS];
     memset(fnospace,0,sizeof(fnospace));
     while (1) {
 
@@ -87,7 +87,7 @@ void* thread_R(void* arg) {
         if(activity==0){
             semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
-                if(shared_memory->sockets[i].is_free == 0 && fnospace[i] == 1 && (time(NULL)-lastacksenttime[i])>=30){
+                if(shared_memory->sockets[i].is_free == 0 && (fnospace[i] == 1 || (time(NULL)-lastacksenttime[i])>=30)){
                     if(shared_memory->sockets[i].is_free == 0){
                         if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
