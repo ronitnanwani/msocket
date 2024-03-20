@@ -26,7 +26,7 @@ int m_errno;
 #define ENOTBOUND 1002
 #define ENOSPACE 1003
 #define T 5
-#define p 0.5
+#define p 0.05
 
 typedef struct {
     int sequence_number;

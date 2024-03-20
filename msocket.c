@@ -7,44 +7,44 @@ struct sembuf wait_operation = {0,-1,0};
 struct sembuf signal_operation = {0,1,0};
 
 int printmsgheader(message_header m){
-    printf("Message header\n");
-    printf("Sequence number %d\n",m.sequence_number);
-    printf("Message type %d\n",m.ty);
-    printf("Message last sent time %ld\n",m.lastsenttime);
+    fprintf(stderr,"Message header\n");
+    fprintf(stderr,"Sequence number %d\n",m.sequence_number);
+    fprintf(stderr,"Message type %d\n",m.ty);
+    fprintf(stderr,"Message last sent time %ld\n",m.lastsenttime);
 }
 
 int printmsg(Message m){
-    printf("Message\n");
-    printf("Is msg %d\n",m.ismsg);
+    fprintf(stderr,"Message\n");
+    fprintf(stderr,"Is msg %d\n",m.ismsg);
     printmsgheader(m.msg_header);
-    printf("%s\n",m.data);
+    fprintf(stderr,"%s\n",m.data);
 }
 
 int printWindow(Window w){
-    printf("Window\n");
-    printf("%d\n",w.size);
-    printf("Ptr1 = %d\n",w.ptr1);
-    printf("Ptr2 = %d\n",w.ptr2);
+    fprintf(stderr,"Window\n");
+    fprintf(stderr,"%d\n",w.size);
+    fprintf(stderr,"Ptr1 = %d\n",w.ptr1);
+    fprintf(stderr,"Ptr2 = %d\n",w.ptr2);
 }
 
 int printmtpsocket(MTPSocket s){
-    printf("isfree %d\n",s.is_free);
-    printf("process_id %d\n",s.process_id);
-    printf("udp_socket_id %d\n",s.udp_socket_id);
-    printf("Dest ip %s\n",s.ip_address);
-    printf("Dest port %hd\n",s.port);
-    printf("Curr = %d\n",s.curr);
-    printf("Start receive = %d\n",s.str);
-    printf("Current index to write to = %d\n",s.wrs);
+    fprintf(stderr,"isfree %d\n",s.is_free);
+    fprintf(stderr,"process_id %d\n",s.process_id);
+    fprintf(stderr,"udp_socket_id %d\n",s.udp_socket_id);
+    fprintf(stderr,"Dest ip %s\n",s.ip_address);
+    fprintf(stderr,"Dest port %hd\n",s.port);
+    fprintf(stderr,"Curr = %d\n",s.curr);
+    fprintf(stderr,"Start receive = %d\n",s.str);
+    fprintf(stderr,"Current index to write to = %d\n",s.wrs);
 
     for(int i=0;i<MAX_BUFFER_SIZE_SENDER;i++){
-        printf("%dth message\n",i);
+        fprintf(stderr,"%dth message\n",i);
         printmsg(s.send_buffer[i]);
     }
     for(int i=0;i<MAX_BUFFER_SIZE_RECEIVER;i++){
-        printf("%dth message\n",i);
-        printf("Is message %d\n",s.receive_buffer[i].ismsg);
-        printf("%s\n",s.receive_buffer[i].data);
+        fprintf(stderr,"%dth message\n",i);
+        fprintf(stderr,"Is message %d\n",s.receive_buffer[i].ismsg);
+        fprintf(stderr,"%s\n",s.receive_buffer[i].data);
     }
     printWindow(s.swnd);
     printWindow(s.rwnd);
@@ -52,7 +52,7 @@ int printmtpsocket(MTPSocket s){
 
 int printSM(SharedMemory* sm){
     for(int i=0;i<MAX_SOCKETS;i++){
-        printf("Mtp Socket %d\n",i);
+        fprintf(stderr,"Mtp Socket %d\n",i);
         printmtpsocket(sm->sockets[i]);
     }
 }
@@ -170,8 +170,8 @@ int m_socket(int domain, int type, int protocol) {
     shared_memory->sockets[free_entry_index].rwnd.ptr1=0;
     shared_memory->sockets[free_entry_index].rwnd.ptr2=4;
     int retval = free_entry_index;
-    // printf("###########################################################\n");
-    // printf("After m_socket() call\n");
+    // fprintf(stderr,"###########################################################\n");
+    // fprintf(stderr,"After m_socket() call\n");
     // printSM(shared_memory);
     shmdt(shared_memory);
     shmdt(sockinfo);
@@ -243,8 +243,8 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
     shared_memory->sockets[entry_index].port = destport;
     strcpy(shared_memory->sockets[entry_index].ip_address,destip);
-    // printf("###########################################################\n");
-    // printf("After m_bind() call\n");
+    // fprintf(stderr,"###########################################################\n");
+    // fprintf(stderr,"After m_bind() call\n");
     // printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
@@ -309,8 +309,8 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
     strcpy(msgtowrite.data,buf);
     shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs]=msgtowrite;
     shared_memory->sockets[entry_index].wrs = (shared_memory->sockets[entry_index].wrs+1)%MAX_BUFFER_SIZE_SENDER;
-    // printf("###########################################################\n");
-    // printf("After m_sendto call\n");
+    // fprintf(stderr,"###########################################################\n");
+    // fprintf(stderr,"After m_sendto call\n");
     // printSM(shared_memory);
     semop(semmutex,&signal_operation,1);
     shmdt(shared_memory);
@@ -354,15 +354,15 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
 
     strcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;
-    // printf("str = %d\n",shared_memory->sockets[entry_index].str);
+    // fprintf(stderr,"str = %d\n",shared_memory->sockets[entry_index].str);
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;
 
     shmdt(shared_memory);
     semop(semmutex,&signal_operation,1);
 
 
-    // printf("###########################################################\n");
-    // printf("After m_recvfrom() call\n");
+    // fprintf(stderr,"###########################################################\n");
+    // fprintf(stderr,"After m_recvfrom() call\n");
 
     return strlen(buf); // Return number of bytes received
 }
@@ -386,57 +386,69 @@ int m_close(int sockfd) {
         return -1;
     }
 
-    key_t shm_key2 = ftok("file2.txt",66);
-    int shmid2 = shmget(shm_key2,0,0666);
-
-    if(shmid2 == -1){
-        m_errno=errno;
-        perror("shmget");
-        return -1;
-    }
-
-    SockInfo* sockinfo = (SockInfo*)shmat(shmid2,NULL,0);
-
-    if(sockinfo == (void*)(-1)){
-        m_errno=errno;
-        perror("shmat");
-        return -1;
-    }
-
-    int semid1 = semget(SEMKEY1, 1, 0);
-    int semid2 = semget(SEMKEY2,1,0);
-
-
-    // Find the socket entry corresponding to sockfd
-    int entry_index = sockfd;
-    //handle badfd error
-
-
     int semmutex = semget(SEMKEYMUTEX,1,0);
 
     semop(semmutex,&wait_operation,1);
-    sockinfo->sockid=shared_memory->sockets[entry_index].udp_socket_id;
-    sockinfo->port=-1;
-    semop(semid1,&signal_operation,1);
-    semop(semid2,&wait_operation,1);
-
     int close_result;
-    if(sockinfo->sockid==0){        //successfully removed
-        shared_memory->sockets[entry_index].is_free = 1;
-        close_result=0;
-    }
-    else{                           //error caused in closing the socket
-        m_errno = sockinfo->err_no;
-        close_result=-1;
-    }
 
-
-    // printf("###########################################################\n");
-    // printf("After m_close() call\n");
-    // printSM(shared_memory);
+    shared_memory->sockets[sockfd].is_free=-1;
     semop(semmutex,&signal_operation,1);
-    // Detach shared memory
-    shmdt(shared_memory);
 
-    return close_result;
+    return 0;
+
+    
+
+    // key_t shm_key2 = ftok("file2.txt",66);
+    // int shmid2 = shmget(shm_key2,0,0666);
+
+    // if(shmid2 == -1){
+    //     m_errno=errno;
+    //     perror("shmget");
+    //     return -1;
+    // }
+
+    // SockInfo* sockinfo = (SockInfo*)shmat(shmid2,NULL,0);
+
+    // if(sockinfo == (void*)(-1)){
+    //     m_errno=errno;
+    //     perror("shmat");
+    //     return -1;
+    // }
+
+    // int semid1 = semget(SEMKEY1, 1, 0);
+    // int semid2 = semget(SEMKEY2,1,0);
+
+
+    // // Find the socket entry corresponding to sockfd
+    // int entry_index = sockfd;
+    // //handle badfd error
+
+
+    // int semmutex = semget(SEMKEYMUTEX,1,0);
+
+    // semop(semmutex,&wait_operation,1);
+    // sockinfo->sockid=shared_memory->sockets[entry_index].udp_socket_id;
+    // sockinfo->port=-1;
+    // semop(semid1,&signal_operation,1);
+    // semop(semid2,&wait_operation,1);
+
+    // int close_result;
+    // if(sockinfo->sockid==0){        //successfully removed
+    //     shared_memory->sockets[entry_index].is_free = 1;
+    //     close_result=0;
+    // }
+    // else{                           //error caused in closing the socket
+    //     m_errno = sockinfo->err_no;
+    //     close_result=-1;
+    // }
+
+
+    // fprintf(stderr,"###########################################################\n");
+    // fprintf(stderr,"After m_close() call\n");
+    // printSM(shared_memory);
+    // semop(semmutex,&signal_operation,1);
+    // // Detach shared memory
+    // shmdt(shared_memory);
+
+    // return close_result;
 }

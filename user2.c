@@ -15,13 +15,29 @@ int main(){
     int i=0;
     while(1){
         int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+
         if(retval>0){
             fprintf(stderr,"Received: %s\n",buffer);
+            i++;
+        }
+        if(i==1){
+            break;
         }
         // else{
         //     printf("Retval is less than 0\n");
         // }
     }
+    char buf[1024];
+    strcpy(buf,"Bye");
+    serv_addr.sin_port=htons(6000);
+    int retval = m_sendto(sockfd,buf,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    printf("%d\n",retval);
+    fprintf(stderr,"Sent: %s\n","Bye");
+
+    while(1){
+
+    }
+    // m_close(sockfd);
     // while(1){
     //     int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
     //     if(retval<0){

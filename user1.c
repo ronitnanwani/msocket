@@ -10,7 +10,7 @@ int main(){
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
     int len = sizeof(serv_addr);
     int i=0;
-    while(i<20){
+    while(i<1){
         int retval;
         char sendm[100];
         sprintf(sendm,"Hello there %d",i);
@@ -27,5 +27,14 @@ int main(){
         }
         i++;
     }
+
+    char buffer[1024];
+    while(1){
+        int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+        if(retval>0){
+            break;
+        }
+    }
+    printf("%s\n",buffer);
     return 0;
 }

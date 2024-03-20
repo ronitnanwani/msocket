@@ -189,6 +189,8 @@ void* thread_R(void* arg) {
                         senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft+15)%16;
                         senderwindow.size = recvsizeleft;
 
+                        printf("Ptr1=%d Ptr2=%d size=%d\n",senderwindow.ptr1,senderwindow.ptr2,senderwindow.size);
+
                         shared_memory->sockets[i].swnd = senderwindow;
 
                     }
@@ -290,19 +292,21 @@ void* thread_S(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
 
     while (1) {
-        usleep((T*10000)/4);
+        usleep((T*1000000)/4);
         // printf("Here in thread s\n");
         semop(semmutex,&wait_op,1);
         // printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
+                // printf("%d\n",i);
                 Window senderwindow = shared_memory->sockets[i].swnd;
                 // printf("Sender window size = %d\n",senderwindow.size);
                 // printf("Sender window ptr1 = %d and ptr2 = %d\n",senderwindow.ptr1,senderwindow.ptr2);
                 if(senderwindow.size!=0){
                     int temp1 = senderwindow.ptr1;
                     int temp2 = senderwindow.ptr2;
-                    // printf("Here Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
+                    printf("From  here%d\n",i);
+                    printf("Here Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
 
                     int flag=0;
 
@@ -310,9 +314,18 @@ void* thread_S(void* arg) {
                         for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
 
                             // if it is a message within the sender window then do as needed
+                            if(i==1){
+                                if(j==0){
+                                    // fprintf(stderr,"%d %d %d\n",(shared_memory->sockets[i].send_buffer[j].ismsg),(shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1),(shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime!=-1));
+                                }
+                                
+                            }
                             if((shared_memory->sockets[i].send_buffer[j].ismsg) && (shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1) && (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime!=-1)){
+                                printf("Debugging %d \n",i);
                                 time_t currtime;
                                 time(&currtime);
+
+                                // printf("Here\n");
 
                                 // printf("Difference between %ld and %ld is %ld\n",currtime,shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime,currtime-shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime);
 
@@ -354,6 +367,7 @@ void* thread_S(void* arg) {
                                     shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                                     Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                                     sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                                    printf("Sending this message %s\n",msgtosend.data);
                                     break;
                                 }
                             }
@@ -378,7 +392,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
-                        // printf("Sending this message %s\n",msgtosend.data);
+                        printf("Sending this message %s\n",msgtosend.data);
                     }   
                 }
             }
@@ -393,18 +407,28 @@ void* thread_S(void* arg) {
 void* garbage_collector(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
     
-    while (1) {
-        // Perform cleanup
-        for (int i = 0; i < MAX_SOCKETS; ++i) {
-            // if (!shared_memory->sockets[i].is_free && !kill(shared_memory->sockets[i].process_id, 0)) {
-            //     // Process is not alive, clean up socket entry
-            //     shared_memory->sockets[i].is_free = 1;
-            //     // Reset other fields as needed
-            // }
+    semop(semmutex,&wait_op,1);
+
+    for(int i=0;i<MAX_SOCKETS;i++){
+        if(shared_memory->sockets[i].is_free==-1){
+            shared_memory->sockets[i].is_free = 0;
+            shared_memory->sockets[i].process_id = getpid();
+            shared_memory->sockets[i].udp_socket_id = -1;
+            shared_memory->sockets[i].curr = 0;
+            shared_memory->sockets[i].str = 0;
+            shared_memory->sockets[i].wrs = 0;
+            memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
+            memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
+            shared_memory->sockets[i].swnd.size=5;
+            shared_memory->sockets[i].swnd.ptr1=0;
+            shared_memory->sockets[i].swnd.ptr2=4;
+            shared_memory->sockets[i].rwnd.size=5;
+            shared_memory->sockets[i].rwnd.ptr1=0;
+            shared_memory->sockets[i].rwnd.ptr2=4;
         }
-        
-        sleep(1);
     }
+
+    semop(semmutex,&signal_op,1);
     
     return NULL;
 }
@@ -526,16 +550,16 @@ int main() {
                 }
 
             }
-            else if((sockinfo->sockid != 0) && (sockinfo->port == -1)){     //m_close() call
-                int sockfd = sockinfo->sockid;
-                if(close(sockfd) == -1){
-                    perror("close");
-                    sockinfo->err_no=errno;
-                }
-                else{
-                    sockinfo->sockid=0;     //successfully closed
-                }
-            }
+            // else if((sockinfo->sockid != 0) && (sockinfo->port == -1)){     //m_close() call
+            //     int sockfd = sockinfo->sockid;
+            //     if(close(sockfd) == -1){
+            //         perror("close");
+            //         sockinfo->err_no=errno;
+            //     }
+            //     else{
+            //         sockinfo->sockid=0;     //successfully closed
+            //     }
+            // }
         semop(semid2,&signal_op,1);  
     }
     shmdt(shared_memory);
