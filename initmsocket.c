@@ -70,7 +70,7 @@ void* thread_R(void* arg) {
                 }
             }
         }
-        // semop(semmutex,&signal_operation,1);
+        semop(semmutex,&signal_operation,1);
 
         struct timeval tv;
         tv.tv_sec = T;
@@ -84,7 +84,7 @@ void* thread_R(void* arg) {
         }
 
         if(activity==0){
-            // semop(semmutex,&wait_operation,1);
+            semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(fnospace[i]){
                     if(shared_memory->sockets[i].is_free == 0){
@@ -121,7 +121,8 @@ void* thread_R(void* arg) {
         }
 
 
-        // semop(semmutex,&wait_operation,1);
+        semop(semmutex,&wait_operation,1);
+        
         for (int i = 0; i < MAX_SOCKETS; i++)
         {      
             if(shared_memory->sockets[i].is_free == 0){
@@ -139,12 +140,12 @@ void* thread_R(void* arg) {
 
                     // If client not same as the one who sent the message, ignore
                     if(strcmp(shared_memory->sockets[i].ip_address,inet_ntoa(cliaddr.sin_addr))!=0 || shared_memory->sockets[i].port!=ntohs(cliaddr.sin_port)){
-                        // semop(semmutex,&signal_operation,1);
+                        semop(semmutex,&signal_operation,1);
                         continue;
                     }
 
                     if(n==0){
-                        // semop(semmutex,&signal_operation,1);
+                        semop(semmutex,&signal_operation,1);
                         continue;
                     }
                     
@@ -166,13 +167,6 @@ void* thread_R(void* arg) {
                             }
                             temp1 = (temp1+1)%16;
                         }
-
-                        // for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
-                        //     if(shared_memory->sockets[i].send_buffer[j].ismsg && shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number <= ack){
-                        //         shared_memory->sockets[i].send_buffer[j].ismsg = 0;
-                        //         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime = -1;
-                        //     }
-                        // }
 
                         senderwindow.ptr1 = (ack+1)%16;
 
