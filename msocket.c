@@ -57,6 +57,18 @@ int printSM(SharedMemory* sm){
     }
 }
 
+int dropMessage(float prob){
+    srand(time(NULL));
+    int random_num = rand();
+    double random_double = (double)random_num / RAND_MAX;
+    if(random_double < prob){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
 int m_socket(int domain, int type, int protocol) {
 
     int semid1 = semget(SEMKEY1,1,0);

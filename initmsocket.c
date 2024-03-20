@@ -3,8 +3,9 @@
 #define SEMKEY2 6970
 #define SEMKEYMUTEX 6971
 
-struct sembuf wait_operation = {0,-1,0};
-struct sembuf signal_operation = {0,1,0};
+struct sembuf wait_op = {0,-1,0};
+struct sembuf signal_op = {0,1,0};
+
 int semid1;
 int semid2;
 int semmutex;
@@ -60,7 +61,7 @@ void* thread_R(void* arg) {
         fd_set readfds;
         FD_ZERO(&readfds);
         int maxfd = 0;
-        semop(semmutex,&wait_operation,1);
+        semop(semmutex,&wait_op,1);
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){
                 // printf("Socket %d is not free\n",i);
@@ -70,7 +71,7 @@ void* thread_R(void* arg) {
                 }
             }
         }
-        semop(semmutex,&signal_operation,1);
+        semop(semmutex,&signal_op,1);
 
         struct timeval tv;
         tv.tv_sec = T;
@@ -84,7 +85,7 @@ void* thread_R(void* arg) {
         }
 
         if(activity==0){
-            semop(semmutex,&wait_operation,1);
+            semop(semmutex,&wait_op,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(fnospace[i]){
                     if(shared_memory->sockets[i].is_free == 0){
@@ -115,13 +116,13 @@ void* thread_R(void* arg) {
                     }
                 }
             }
-            semop(semmutex,&signal_operation,1);
+            semop(semmutex,&signal_op,1);
             printf("Timeout\n");
             continue;
         }
 
 
-        semop(semmutex,&wait_operation,1);
+        semop(semmutex,&wait_op,1);
         
         for (int i = 0; i < MAX_SOCKETS; i++)
         {      
@@ -132,20 +133,25 @@ void* thread_R(void* arg) {
                     Message msg;
                     int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
 
+                    if(dropMessage(p)){
+                        printf("Message dropped\n");
+                        continue;
+                    }
+
                     if(n<0){
-                        semop(semmutex,&signal_operation,1);
+                        semop(semmutex,&signal_op,1);
                         perror("recvfrom");
                         continue;
                     }
 
                     // If client not same as the one who sent the message, ignore
                     if(strcmp(shared_memory->sockets[i].ip_address,inet_ntoa(cliaddr.sin_addr))!=0 || shared_memory->sockets[i].port!=ntohs(cliaddr.sin_port)){
-                        semop(semmutex,&signal_operation,1);
+                        semop(semmutex,&signal_op,1);
                         continue;
                     }
 
                     if(n==0){
-                        semop(semmutex,&signal_operation,1);
+                        semop(semmutex,&signal_op,1);
                         continue;
                     }
                     
@@ -267,7 +273,7 @@ void* thread_R(void* arg) {
             }
         
         }
-        semop(semmutex,&signal_operation,1);
+        semop(semmutex,&signal_op,1);
     }  
 } 
 
@@ -278,8 +284,8 @@ void* thread_S(void* arg) {
     while (1) {
         usleep((T*1000000)/4);
         // printf("Here in thread s\n");
-        semop(semmutex,&wait_operation,1);
-        printf("Here in thread s after aquiring semaphore\n");
+        semop(semmutex,&wait_op,1);
+        // printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
                 Window senderwindow = shared_memory->sockets[i].swnd;
@@ -369,7 +375,7 @@ void* thread_S(void* arg) {
                 }
             }
         }
-        semop(semmutex,&signal_operation,1);
+        semop(semmutex,&signal_op,1);
         
     }
     return NULL;
@@ -483,7 +489,7 @@ int main() {
 
 
     while(1){
-        semop(semid1,&wait_operation,1);
+        semop(semid1,&wait_op,1);
             if((sockinfo->sockid == 0) && (sockinfo->port==0)){      //m_socket call
                 int udp_socket_id = socket(AF_INET, SOCK_DGRAM, 0);
                 if(udp_socket_id == -1){
@@ -522,7 +528,7 @@ int main() {
                     sockinfo->sockid=0;     //successfully closed
                 }
             }
-        semop(semid2,&signal_operation,1);  
+        semop(semid2,&signal_op,1);  
     }
     shmdt(shared_memory);
     return 0;

@@ -26,7 +26,7 @@ int m_errno;
 #define ENOTBOUND 1002
 #define ENOSPACE 1003
 #define T 5
-#define p 0.05
+#define p 0.5
 
 typedef struct {
     int sequence_number;
@@ -90,3 +90,4 @@ int m_bind(int, char*,short,char*,short);
 ssize_t m_sendto(int , const void* , size_t , int , struct sockaddr* , socklen_t);
 ssize_t m_recvfrom(int , void *, size_t ,int ,struct sockaddr* ,socklen_t);
 int m_close(int);
+int dropMessage(float);
