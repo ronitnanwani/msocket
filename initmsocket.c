@@ -88,7 +88,7 @@ void* thread_R(void* arg) {
             semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(shared_memory->sockets[i].is_free == 0){
-                    if(fnospace[i] || ((time(NULL)-lastacksenttime[i]>=T) && shared_memory->sockets[i].rwnd.size>0)){
+                    if(fnospace[i] || (time(NULL)-lastacksenttime[i]>=30)){
                         if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
                             Message ackmsg;
@@ -117,6 +117,9 @@ void* thread_R(void* arg) {
                             sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&ackmsg),sizeof(ackmsg),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
                         }
                     }
+                }
+                else{
+                    fnospace[i] = 0;
                 }
             }
             semop(semmutex,&signal_operation,1);
