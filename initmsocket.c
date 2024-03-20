@@ -54,6 +54,7 @@ void signal_handler(int signal) {
 void* thread_R(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
     int fnospace[MAX_SOCKETS];
+    int lastacksenttime[MAX_SOCKETS];
     memset(fnospace,0,sizeof(fnospace));
     while (1) {
 
@@ -86,7 +87,7 @@ void* thread_R(void* arg) {
         if(activity==0){
             semop(semmutex,&wait_operation,1);
             for(int i=0;i<MAX_SOCKETS;i++){
-                if(fnospace[i]){
+                if(shared_memory->sockets[i].is_free == 0 && fnospace[i] == 1 && (time(NULL)-lastacksenttime[i])>=30){
                     if(shared_memory->sockets[i].is_free == 0){
                         if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
@@ -104,6 +105,8 @@ void* thread_R(void* arg) {
                             shared_memory->sockets[i].rwnd.ptr2 = (shared_memory->sockets[i].rwnd.ptr1+cnt+15)%16;
 
                             ackmsg.msg_header.lastsenttime = time(NULL);
+                            lastacksenttime[i] = ackmsg.msg_header.lastsenttime;
+
                             sprintf(ackmsg.data,"%d",cnt);
 
                             struct sockaddr_in servaddr;
@@ -122,7 +125,7 @@ void* thread_R(void* arg) {
 
 
         semop(semmutex,&wait_operation,1);
-        
+
         for (int i = 0; i < MAX_SOCKETS; i++)
         {      
             if(shared_memory->sockets[i].is_free == 0){
@@ -248,6 +251,7 @@ void* thread_R(void* arg) {
                             memset(ackmsg.data,'\0',sizeof(ackmsg.data));
                             sprintf(ackmsg.data,"%d",receiverwindow.size);
                             ackmsg.msg_header.lastsenttime = time(NULL);
+                            lastacksenttime[i] = ackmsg.msg_header.lastsenttime;
 
                             struct sockaddr_in servaddr;
                             memset(&servaddr,0,sizeof(servaddr));
@@ -276,10 +280,10 @@ void* thread_S(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
 
     while (1) {
-        usleep((T*1000000)/4);
+        usleep((T*10000)/4);
         // printf("Here in thread s\n");
         semop(semmutex,&wait_operation,1);
-        printf("Here in thread s after aquiring semaphore\n");
+        // printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
             if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
                 Window senderwindow = shared_memory->sockets[i].swnd;

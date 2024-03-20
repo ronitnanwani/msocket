@@ -16,14 +16,14 @@ int main(){
         sprintf(sendm,"Hello there %d",i);
         if(i<5){
             retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-            printf("Sent: %s\n",sendm);
+            fprintf(stderr,"Sent: %s\n",sendm);
         }
         else{
             retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
             if(retval<0){
                 continue;
             }
-            printf("Sent: %s\n",sendm);
+            fprintf(stderr,"Sent: %s\n",sendm);
         }
         i++;
     }
