@@ -124,7 +124,7 @@ void* thread_R(void* arg) {
                 }
             }
             semop(semmutex,&signal_op,1);
-            printf("Timeout\n");
+            // printf("Timeout\n");
             continue;
         }
 
@@ -168,7 +168,7 @@ void* thread_R(void* arg) {
                     if(msg.msg_header.ty == 2){
                         // ACK message
                         int ack = msg.msg_header.sequence_number; //received till this index number
-                        printf("Received till this index = %d\n",ack);
+                        // printf("Received till this index = %d\n",ack);
                         int temp1 = senderwindow.ptr1;
                         
                         while(temp1 != (ack+1)%16){
@@ -189,7 +189,7 @@ void* thread_R(void* arg) {
                         senderwindow.ptr2 = (senderwindow.ptr1+recvsizeleft+15)%16;
                         senderwindow.size = recvsizeleft;
 
-                        printf("Ptr1=%d Ptr2=%d size=%d\n",senderwindow.ptr1,senderwindow.ptr2,senderwindow.size);
+                        // printf("Ptr1=%d Ptr2=%d size=%d\n",senderwindow.ptr1,senderwindow.ptr2,senderwindow.size);
 
                         shared_memory->sockets[i].swnd = senderwindow;
 
@@ -305,8 +305,8 @@ void* thread_S(void* arg) {
                 if(senderwindow.size!=0){
                     int temp1 = senderwindow.ptr1;
                     int temp2 = senderwindow.ptr2;
-                    printf("From  here%d\n",i);
-                    printf("Here Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
+                    // printf("From  here%d\n",i);
+                    // printf("Here Sender window ptr = %d and ptr2 = %d\n",temp1,temp2);
 
                     int flag=0;
 
@@ -321,7 +321,7 @@ void* thread_S(void* arg) {
                                 
                             }
                             if((shared_memory->sockets[i].send_buffer[j].ismsg) && (shared_memory->sockets[i].send_buffer[j].msg_header.sequence_number == temp1) && (shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime!=-1)){
-                                printf("Debugging %d \n",i);
+                                // printf("Debugging %d \n",i);
                                 time_t currtime;
                                 time(&currtime);
 
@@ -367,7 +367,7 @@ void* thread_S(void* arg) {
                                     shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                                     Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                                     sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
-                                    printf("Sending this message %s\n",msgtosend.data);
+                                    // printf("Sending this message %s\n",msgtosend.data);
                                     break;
                                 }
                             }
@@ -392,7 +392,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
-                        printf("Sending this message %s\n",msgtosend.data);
+                        // printf("Sending this message %s\n",msgtosend.data);
                     }   
                 }
             }

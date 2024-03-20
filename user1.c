@@ -10,31 +10,34 @@ int main(){
     inet_aton("127.0.0.1",&serv_addr.sin_addr);
     int len = sizeof(serv_addr);
     int i=0;
-    while(i<1){
+    while(i<25){
         int retval;
-        char sendm[100];
+        char sendm[1024];
         sprintf(sendm,"Hello there %d",i);
-        if(i<5){
-            retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-            fprintf(stderr,"Sent: %s\n",sendm);
+        retval = m_sendto(sockfd,sendm,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+        if(retval<0){
+            continue;
         }
-        else{
-            retval = m_sendto(sockfd,sendm,11,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
-            if(retval<0){
-                continue;
-            }
-            fprintf(stderr,"Sent: %s\n",sendm);
-        }
+        printf("Sent: %s\n",sendm);
         i++;
     }
 
+    printf("\nDone sending and now receving\n\n");
+
     char buffer[1024];
-    while(1){
-        int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    i=0;
+    while(i<25){
+        socklen_t serv_addr_len=sizeof(serv_addr);
+        int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,&serv_addr_len);
         if(retval>0){
-            break;
+            printf("Received: %s\n",buffer);
+            i++;
         }
     }
-    printf("%s\n",buffer);
+
+    while(1){
+
+    }
+
     return 0;
 }
