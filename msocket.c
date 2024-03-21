@@ -58,9 +58,13 @@ int printSM(SharedMemory* sm){
 }
 
 int dropMessage(float prob){
-    srand(time(NULL));
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    unsigned int seed = (unsigned int)(tv.tv_usec);
+    srand(seed);
     int random_num = rand();
     double random_double = (double)random_num / RAND_MAX;
+    // printf("Called %f %f\n",random_double,prob);
     if(random_double < prob){
         return 1;
     }
@@ -359,6 +363,12 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
         return -1;
     }
 
+    if(len>strlen(shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data)){
+        len = strlen(shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
+        // printf("Now %ld\n",len);
+        // printf("##########");
+        // printf("%s",shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data);
+    }
 
     memcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data,len);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;

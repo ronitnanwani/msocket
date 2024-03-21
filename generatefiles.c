@@ -15,11 +15,11 @@ void generateRandomString(char *str, int length) {
         int index = rand() % (strlen(charset));
         str[i] = charset[index];
     }
-    str[length] = '\0'; // Null-terminate the string
+    str[length] = '\0';
 }
 
 int main() {
-    srand(time(NULL)); // Seed the random number generator
+    srand(time(NULL));
 
     int startport = 6000;
     for(int i=0;i<24;i++){
@@ -34,9 +34,9 @@ int main() {
                 char random_string[string_len+1];
                 generateRandomString(random_string, string_len);
                 fprintf(fp, "%s ", random_string);
-                if(j%50 == 0){
+                if(((j+1)%50) == 0){
                     fprintf(fp,"%s","\n");      //print newline after every 50 strings
-                }   
+                }
         }
         fclose(fp);
     }

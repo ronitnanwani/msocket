@@ -38,13 +38,13 @@ typedef struct {
 typedef struct {
     int ismsg;      //0 if not msg 1 if msg
     message_header msg_header;
-    char data[1024]; // Assuming message size is 1KB
+    char data[1025]; // Assuming message size is 1KB
 } Message;
 
 // Structure to represent a message in the buffer
 typedef struct {
     int ismsg;       // 0 if not msg 1 if msg
-    char data[1024]; // Assuming message size is 1KB
+    char data[1025]; // Assuming message size is 1KB
 } MessageRecv;
 
 // Structure to represent sender/receiver window

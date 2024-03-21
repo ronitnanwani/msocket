@@ -139,8 +139,8 @@ void* thread_R(void* arg) {
                     int len = sizeof(cliaddr);
                     Message msg;
                     int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
-
                     if(dropMessage(p)){
+                        semop(semmutex,&signal_op,1);
                         printf("Message dropped\n");
                         continue;
                     }
@@ -281,7 +281,6 @@ void* thread_R(void* arg) {
 
                 }
             }
-        
         }
         semop(semmutex,&signal_op,1);
     }  
@@ -292,7 +291,7 @@ void* thread_S(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
 
     while (1) {
-        usleep((T*1000000)/4);
+        usleep((T*1000000)/8);
         // printf("Here in thread s\n");
         semop(semmutex,&wait_op,1);
         // printf("Here in thread s after aquiring semaphore\n");
