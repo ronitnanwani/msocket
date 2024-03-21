@@ -58,7 +58,10 @@ int printSM(SharedMemory* sm){
 }
 
 int dropMessage(float prob){
-    srand(time(NULL));
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    unsigned int seed = (unsigned int)(tv.tv_usec);
+    srand(seed);
     int random_num = rand();
     double random_double = (double)random_num / RAND_MAX;
     if(random_double < prob){

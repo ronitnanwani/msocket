@@ -37,6 +37,7 @@ int main(int argv,char* argc[]){
     while(i<25){
         socklen_t serv_addr_len=sizeof(serv_addr);
         int retval = m_recvfrom(sockfd,buffer,1024,0,(struct sockaddr*)&serv_addr,&serv_addr_len);
+        buffer[retval]='\0';
         if(retval>0){
             printf("Received: %s\n",buffer);
             i++;

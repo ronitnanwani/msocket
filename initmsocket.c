@@ -141,6 +141,7 @@ void* thread_R(void* arg) {
                     int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
 
                     if(dropMessage(p)){
+                        semop(semmutex,&signal_op,1);
                         printf("Message dropped\n");
                         continue;
                     }
