@@ -11,6 +11,7 @@ int semid2;
 int semmutex;
 int shmid1;
 int shmid2;
+// int transmission=0;
 
 
 void remove_shared_memory() {
@@ -45,6 +46,7 @@ void remove_semaphore() {
 // Signal handler for Ctrl+C
 void signal_handler(int signal) {
     printf("Ctrl+C received. Cleaning up...\n");
+    // printf("Transmissions = %d\n",transmission);
     remove_shared_memory();
     remove_semaphore();
 
@@ -383,6 +385,7 @@ void* thread_S(void* arg) {
                                     shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                                     Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                                     sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                                    // transmission++;
                                     // st.total_msgs_sent++;
 
                                     // printf("Sending this message %s\n",msgtosend.data);
@@ -410,6 +413,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                        // transmission++;
                         // st.total_msgs_sent++;
                         // printf("Sending this message %s\n",msgtosend.data);
                     }   

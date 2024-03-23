@@ -12,9 +12,9 @@ int main(int argv,char* argc[]){
     sprintf(recv_filename,"%dr.txt",dest_port);
     int fpr = open(recv_filename,O_CREAT | O_WRONLY | O_TRUNC, 0666);
 
-    char send_filename[100];
-    sprintf(send_filename,"%d.txt",myport);
-    int fps = open(send_filename, O_RDONLY , 0666);
+    // char send_filename[100];
+    // sprintf(send_filename,"%d.txt",myport);
+    // int fps = open(send_filename, O_RDONLY , 0666);
 
     int sockfd = m_socket(AF_INET,SOCK_MTP, 0);
     m_bind(sockfd,"127.0.0.1",myport,"127.0.0.1",dest_port);
@@ -29,6 +29,7 @@ int main(int argv,char* argc[]){
     // sleep(10);
     int i=0;
 
+    printf("Started Receiving %dr.txt\n",dest_port);
     while(1){
         socklen_t serv_addr_len=sizeof(serv_addr);
         memset(buffer,'\0',sizeof(buffer));
@@ -57,9 +58,9 @@ int main(int argv,char* argc[]){
     //     }
     //     printf("%d\n",retval);
     // }
-    fprintf(stderr,"Done\n");
+    printf("Done Receiving %dr.txt\n",dest_port);
     close(fpr);
-    close(fps);
+    // close(fps);
 
     while(1){
 

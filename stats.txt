@@ -14,7 +14,7 @@ Total messages sent = 246
 
 Probability p = 0.200000
 Data messages sent = 99
-Total messages sent = 294
+Total messages sent = 266
 
 Probability p = 0.250000
 Data messages sent = 99
@@ -27,7 +27,7 @@ Total messages sent = 293
 
 Probability p = 0.350000
 Data messages sent = 99
-Total messages sent = 396
+Total messages sent = 337
 
 Probability p = 0.400000
 Data messages sent = 99
@@ -35,9 +35,8 @@ Total messages sent = 426
 
 Probability p = 0.450000
 Data messages sent = 99
-Total messages sent = 480
+Total messages sent = 457
 
 Probability p = 0.500000
 Data messages sent = 99
-Total messages sent = 657
-
+Total messages sent = 496

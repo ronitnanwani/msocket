@@ -11,9 +11,9 @@ int main(int argv,char* argc[]){
     int myport = atoi(argc[1]);
     int dest_port = atoi(argc[2]);
 
-    char recv_filename[100];
-    sprintf(recv_filename,"%dr.txt",dest_port);
-    int fpr = open(recv_filename,O_CREAT | O_WRONLY | O_TRUNC , 0666);
+    // char recv_filename[100];
+    // sprintf(recv_filename,"%dr.txt",dest_port);
+    // int fpr = open(recv_filename,O_CREAT | O_WRONLY | O_TRUNC , 0666);
 
     char send_filename[100];
     sprintf(send_filename,"%d.txt",myport);
@@ -33,6 +33,7 @@ int main(int argv,char* argc[]){
     size_t bytes_read;
 
     // int i=0;
+    printf("Started Sending %d.txt\n",myport);
     while ((bytes_read = read(fps, buffer, MAX_MESSAGE_LENGTH)) > 0) {
         int retval=-1;
         // char sendm[MAX_MESSAGE_LENGTH];
@@ -43,6 +44,7 @@ int main(int argv,char* argc[]){
         // printf("%s",sendm);
         // i++;
     }
+    printf("Done Sending %d.txt\n",myport);
     // printf("%d\n",i);
 
     // printf("\nDone sending and now receving\n\n");
@@ -56,10 +58,8 @@ int main(int argv,char* argc[]){
     //     buffer[retval]='\0';
     //     fwrite(buffer,1,strlen(buffer)+1,fpr);
     // }
-
-    fprintf(stderr,"Done\n");
     
-    close(fpr);
+    // close(fpr);
     close(fps);
 
     m_close(sockfd);
