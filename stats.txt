@@ -1,0 +1,43 @@
+
+
+Probability p = 0.050000
+Data messages sent = 99
+Total messages sent = 209
+
+Probability p = 0.100000
+Data messages sent = 99
+Total messages sent = 225
+
+Probability p = 0.150000
+Data messages sent = 99
+Total messages sent = 246
+
+Probability p = 0.200000
+Data messages sent = 99
+Total messages sent = 294
+
+Probability p = 0.250000
+Data messages sent = 99
+Total messages sent = 279
+
+Probability p = 0.300000
+Data messages sent = 99
+Total messages sent = 293
+
+
+Probability p = 0.350000
+Data messages sent = 99
+Total messages sent = 396
+
+Probability p = 0.400000
+Data messages sent = 99
+Total messages sent = 426
+
+Probability p = 0.450000
+Data messages sent = 99
+Total messages sent = 480
+
+Probability p = 0.500000
+Data messages sent = 99
+Total messages sent = 657
+
