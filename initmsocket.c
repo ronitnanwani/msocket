@@ -91,7 +91,7 @@ void* thread_R(void* arg) {
             semop(semmutex,&wait_op,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(shared_memory->sockets[i].is_free == 0){
-                    if(fnospace[i] || (time(NULL)-lastacksenttime[i]>=30)){
+                    if(fnospace[i] || (time(NULL)-lastacksenttime[i]>=10)){
                         if(shared_memory->sockets[i].receive_buffer[shared_memory->sockets[i].wrr].ismsg == 0){
                             fnospace[i] = 0;
                             Message ackmsg;
@@ -409,29 +409,52 @@ void* thread_S(void* arg) {
 // Garbage collector function
 void* garbage_collector(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
-    
-    semop(semmutex,&wait_op,1);
 
-    for(int i=0;i<MAX_SOCKETS;i++){
-        if(shared_memory->sockets[i].is_free==-1){
-            shared_memory->sockets[i].is_free = 0;
-            shared_memory->sockets[i].process_id = getpid();
-            shared_memory->sockets[i].udp_socket_id = -1;
-            shared_memory->sockets[i].curr = 0;
-            shared_memory->sockets[i].str = 0;
-            shared_memory->sockets[i].wrs = 0;
-            memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
-            memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
-            shared_memory->sockets[i].swnd.size=5;
-            shared_memory->sockets[i].swnd.ptr1=0;
-            shared_memory->sockets[i].swnd.ptr2=4;
-            shared_memory->sockets[i].rwnd.size=5;
-            shared_memory->sockets[i].rwnd.ptr1=0;
-            shared_memory->sockets[i].rwnd.ptr2=4;
+    while(1){
+        sleep(15*T);
+        semop(semmutex,&wait_op,1);
+
+        for(int i=0;i<MAX_SOCKETS;i++){
+            
+            if(shared_memory->sockets[i].is_free==0){
+                if(kill(shared_memory->sockets[i].process_id,0)!=0){
+                    close(shared_memory->sockets[i].udp_socket_id);
+                    printf("Closing socket\n");
+                    shared_memory->sockets[i].is_free = 1;
+                    shared_memory->sockets[i].udp_socket_id = -1;
+                    shared_memory->sockets[i].curr = 0;
+                    shared_memory->sockets[i].str = 0;
+                    shared_memory->sockets[i].wrs = 0;
+                    memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
+                    memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
+                    shared_memory->sockets[i].swnd.size=5;
+                    shared_memory->sockets[i].swnd.ptr1=0;
+                    shared_memory->sockets[i].swnd.ptr2=4;
+                    shared_memory->sockets[i].rwnd.size=5;
+                    shared_memory->sockets[i].rwnd.ptr1=0;
+                    shared_memory->sockets[i].rwnd.ptr2=4;
+                }
+            }
+            if(shared_memory->sockets[i].is_free==-1){
+                close(shared_memory->sockets[i].udp_socket_id);
+                shared_memory->sockets[i].is_free = 1;
+                shared_memory->sockets[i].udp_socket_id = -1;
+                shared_memory->sockets[i].curr = 0;
+                shared_memory->sockets[i].str = 0;
+                shared_memory->sockets[i].wrs = 0;
+                memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
+                memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
+                shared_memory->sockets[i].swnd.size=5;
+                shared_memory->sockets[i].swnd.ptr1=0;
+                shared_memory->sockets[i].swnd.ptr2=4;
+                shared_memory->sockets[i].rwnd.size=5;
+                shared_memory->sockets[i].rwnd.ptr1=0;
+                shared_memory->sockets[i].rwnd.ptr2=4;
+            }
         }
-    }
 
-    semop(semmutex,&signal_op,1);
+        semop(semmutex,&signal_op,1);
+    }
     
     return NULL;
 }
