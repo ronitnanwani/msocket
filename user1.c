@@ -62,9 +62,7 @@ int main(int argv,char* argc[]){
     close(fpr);
     close(fps);
 
-    while(1){
-
-    }
+    m_close(sockfd);
 
 
     exit(0);

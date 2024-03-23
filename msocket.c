@@ -159,6 +159,7 @@ int m_socket(int domain, int type, int protocol) {
 
     
     shared_memory->sockets[free_entry_index].is_free = 0;
+    shared_memory->sockets[free_entry_index].is_close = 0;
     shared_memory->sockets[free_entry_index].process_id = getpid();
     shared_memory->sockets[free_entry_index].udp_socket_id = sockinfo->sockid;
     shared_memory->sockets[free_entry_index].curr = 0;
@@ -410,7 +411,7 @@ int m_close(int sockfd) {
     semop(semmutex,&wait_operation,1);
     int close_result;
 
-    shared_memory->sockets[sockfd].is_free=-1;
+    shared_memory->sockets[sockfd].is_close=1;
     semop(semmutex,&signal_operation,1);
 
     return 0;

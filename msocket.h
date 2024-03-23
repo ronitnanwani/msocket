@@ -30,11 +30,22 @@ int m_errno;
 #define T 5
 #define p 0.1
 
+// static double p;
+
 typedef struct {
     int sequence_number;
     int ty;          //1 for message and 2 for ack
     time_t lastsenttime;
 } message_header;
+
+
+
+// typedef struct{
+//     int data_msgs_sent;
+//     int total_msgs_sent;
+// } stats;
+
+// static stats st;
 
 // Structure to represent a message in the buffer
 typedef struct {
@@ -59,6 +70,7 @@ typedef struct {
 // Structure to represent an MTP socket
 typedef struct {
     int is_free;
+    int is_close;
     int process_id;
     int udp_socket_id;
     char ip_address[INET_ADDRSTRLEN]; // Assuming IPv4 address (e.g., "xxx.xxx.xxx.xxx\0")

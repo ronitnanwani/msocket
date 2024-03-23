@@ -47,6 +47,17 @@ void signal_handler(int signal) {
     printf("Ctrl+C received. Cleaning up...\n");
     remove_shared_memory();
     remove_semaphore();
+
+    // // Append the statistics to a file
+    // FILE* file = fopen("stats.txt", "a");
+    // if (file == NULL) {
+    //     perror("fopen");
+    //     exit(EXIT_FAILURE);
+    // }
+    // fprintf(file, "Probability p = %f\n", p);
+    // fprintf(file, "Data messages sent = %d\n", st.data_msgs_sent);
+    // fprintf(file, "Total messages sent = %d\n", st.total_msgs_sent);
+    // fprintf(file, "\n");
     exit(EXIT_SUCCESS);
 }
 
@@ -141,12 +152,13 @@ void* thread_R(void* arg) {
                     int len = sizeof(cliaddr);
                     Message msg;
                     int n = recvfrom(shared_memory->sockets[i].udp_socket_id,(void *)(&msg),sizeof(msg),0,(struct sockaddr*)&cliaddr,&len);
-
+                    // printf("Probablity p = %f\n",p);
                     if(dropMessage(p)){
                         semop(semmutex,&signal_op,1);
                         printf("Message dropped\n");
                         continue;
                     }
+
 
                     if(n<0){
                         semop(semmutex,&signal_op,1);
@@ -217,6 +229,7 @@ void* thread_R(void* arg) {
                         }
 
                         if(flag && shared_memory->sockets[i].receive_temp_buffer[seq].ismsg == 0){
+                            // st.data_msgs_sent++;
                             memcpy(shared_memory->sockets[i].receive_temp_buffer[seq].data,msg.data,1024);
                             shared_memory->sockets[i].receive_temp_buffer[seq].ismsg = 1;
                         }
@@ -300,7 +313,7 @@ void* thread_S(void* arg) {
         semop(semmutex,&wait_op,1);
         // printf("Here in thread s after aquiring semaphore\n");
         for(int i=0;i<MAX_SOCKETS;i++){
-            if(shared_memory->sockets[i].is_free == 0){         //If it is a valid entry in the shared memory
+            if(shared_memory->sockets[i].is_free == 0 ){         //If it is a valid entry in the shared memory
                 // printf("%d\n",i);
                 Window senderwindow = shared_memory->sockets[i].swnd;
                 // printf("Sender window size = %d\n",senderwindow.size);
@@ -370,6 +383,8 @@ void* thread_S(void* arg) {
                                     shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                                     Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                                     sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                                    // st.total_msgs_sent++;
+
                                     // printf("Sending this message %s\n",msgtosend.data);
                                     break;
                                 }
@@ -395,6 +410,7 @@ void* thread_S(void* arg) {
                         shared_memory->sockets[i].send_buffer[j].msg_header.lastsenttime=currtime;
                         Message msgtosend = shared_memory->sockets[i].send_buffer[j];
                         sendto(shared_memory->sockets[i].udp_socket_id,(void *)(&msgtosend),sizeof(msgtosend),0,(struct sockaddr*)&servaddr,sizeof(servaddr));
+                        // st.total_msgs_sent++;
                         // printf("Sending this message %s\n",msgtosend.data);
                     }   
                 }
@@ -411,16 +427,63 @@ void* garbage_collector(void* arg) {
     SharedMemory* shared_memory = (SharedMemory*)arg;
 
     while(1){
-        sleep(15*T);
+        sleep(T*5);
         semop(semmutex,&wait_op,1);
 
         for(int i=0;i<MAX_SOCKETS;i++){
+
+            if(shared_memory->sockets[i].is_close==1){
+                // Check if send buffer is empty
+                int flag = 0;
+                for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                    if(shared_memory->sockets[i].send_buffer[j].ismsg){
+                        flag = 1;
+                        break;
+                    }
+                }
+
+                if(flag){
+                    continue;
+                }
+                close(shared_memory->sockets[i].udp_socket_id);
+                printf("Closing socket m_close\n");
+                shared_memory->sockets[i].is_free = 1;
+                shared_memory->sockets[i].is_close = 0;
+                shared_memory->sockets[i].udp_socket_id = -1;
+                shared_memory->sockets[i].curr = 0;
+                shared_memory->sockets[i].str = 0;
+                shared_memory->sockets[i].wrs = 0;
+                memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
+                memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
+                shared_memory->sockets[i].swnd.size=5;
+                shared_memory->sockets[i].swnd.ptr1=0;
+                shared_memory->sockets[i].swnd.ptr2=4;
+                shared_memory->sockets[i].rwnd.size=5;
+                shared_memory->sockets[i].rwnd.ptr1=0;
+                shared_memory->sockets[i].rwnd.ptr2=4;
+            }
             
             if(shared_memory->sockets[i].is_free==0){
                 if(kill(shared_memory->sockets[i].process_id,0)!=0){
+                    
+
+                    // // Check if send buffer is empty
+                    // int flag = 0;
+                    // for(int j=0;j<MAX_BUFFER_SIZE_SENDER;j++){
+                    //     if(shared_memory->sockets[i].send_buffer[j].ismsg){
+                    //         flag = 1;
+                    //         break;
+                    //     }
+                    // }
+
+                    // if(flag){
+                    //     continue;
+                    // }
+
                     close(shared_memory->sockets[i].udp_socket_id);
-                    printf("Closing socket\n");
+                    printf("Closing socket terminated\n");
                     shared_memory->sockets[i].is_free = 1;
+                    shared_memory->sockets[i].is_close = 0;
                     shared_memory->sockets[i].udp_socket_id = -1;
                     shared_memory->sockets[i].curr = 0;
                     shared_memory->sockets[i].str = 0;
@@ -435,22 +498,7 @@ void* garbage_collector(void* arg) {
                     shared_memory->sockets[i].rwnd.ptr2=4;
                 }
             }
-            if(shared_memory->sockets[i].is_free==-1){
-                close(shared_memory->sockets[i].udp_socket_id);
-                shared_memory->sockets[i].is_free = 1;
-                shared_memory->sockets[i].udp_socket_id = -1;
-                shared_memory->sockets[i].curr = 0;
-                shared_memory->sockets[i].str = 0;
-                shared_memory->sockets[i].wrs = 0;
-                memset(shared_memory->sockets[i].send_buffer,0,sizeof(shared_memory->sockets[i].send_buffer));
-                memset(shared_memory->sockets[i].receive_buffer,0,sizeof(shared_memory->sockets[i].receive_buffer));
-                shared_memory->sockets[i].swnd.size=5;
-                shared_memory->sockets[i].swnd.ptr1=0;
-                shared_memory->sockets[i].swnd.ptr2=4;
-                shared_memory->sockets[i].rwnd.size=5;
-                shared_memory->sockets[i].rwnd.ptr1=0;
-                shared_memory->sockets[i].rwnd.ptr2=4;
-            }
+
         }
 
         semop(semmutex,&signal_op,1);
@@ -459,7 +507,14 @@ void* garbage_collector(void* arg) {
     return NULL;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
+    // p = atof(argv[1]);
+
+    // printf("Probability p = %f\n", p);
+
+    // st.data_msgs_sent = 0;
+    // st.total_msgs_sent = 0;
 
     if (signal(SIGINT, signal_handler) == SIG_ERR) {
         perror("signal");
@@ -486,6 +541,7 @@ int main() {
     // Initialize shared memory
     for (int i = 0; i < MAX_SOCKETS; i++) {
         shared_memory->sockets[i].is_free = 1;
+        shared_memory->sockets[i].is_close = 0;
         // Initialize other fields as needed
     }
 
