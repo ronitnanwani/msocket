@@ -57,6 +57,9 @@ void* thread_R(void* arg) {
     int fnospace[MAX_SOCKETS];
     time_t lastacksenttime[MAX_SOCKETS];
     memset(fnospace,0,sizeof(fnospace));
+    struct timeval tv;
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
     while (1) {
 
         fd_set readfds;
@@ -74,9 +77,7 @@ void* thread_R(void* arg) {
         }
         semop(semmutex,&signal_op,1);
 
-        struct timeval tv;
-        tv.tv_sec = T;
-        tv.tv_usec = 0;
+
 
         int activity = select(maxfd+1,&readfds,NULL,NULL,&tv);
 
@@ -86,6 +87,7 @@ void* thread_R(void* arg) {
         }
 
         if(activity==0){
+            tv.tv_sec = 2;
             semop(semmutex,&wait_op,1);
             for(int i=0;i<MAX_SOCKETS;i++){
                 if(shared_memory->sockets[i].is_free == 0){
