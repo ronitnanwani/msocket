@@ -258,7 +258,9 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
 ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sockaddr* dest_addr, socklen_t dest_len) {
     // Attach to shared memory
-
+    if(len>1024){
+        len=1024;
+    }
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key, 0, 0666);
     if (shm_id == -1) {
@@ -304,6 +306,7 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
 
     //can write to send buff;
     Message msgtowrite;
+    memset(msgtowrite.data,'\0',sizeof(msgtowrite.data));
     msgtowrite.ismsg=1;
     msgtowrite.msg_header.sequence_number=shared_memory->sockets[entry_index].curr;
     shared_memory->sockets[entry_index].curr=(shared_memory->sockets[entry_index].curr+1)%16;
@@ -312,6 +315,7 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
     memcpy(msgtowrite.data,buf,len);
     shared_memory->sockets[entry_index].send_buffer[shared_memory->sockets[entry_index].wrs]=msgtowrite;
     shared_memory->sockets[entry_index].wrs = (shared_memory->sockets[entry_index].wrs+1)%MAX_BUFFER_SIZE_SENDER;
+    // printf("%s",msgtowrite.data);
     // fprintf(stderr,"###########################################################\n");
     // fprintf(stderr,"After m_sendto call\n");
     // printSM(shared_memory);
@@ -325,6 +329,9 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
 // Function to receive a message on an MTP socket
 ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* sender_addr,socklen_t* sender_addr_len) {
     // Attach to shared memory
+    if(len>1024){
+        len=1024;
+    }
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key,0, 0666);
 
@@ -364,6 +371,7 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
 
 
     memcpy(buf,shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].data,len);
+    // printf("%s",buf);
     shared_memory->sockets[entry_index].receive_buffer[shared_memory->sockets[entry_index].str].ismsg=0;
     // fprintf(stderr,"str = %d\n",shared_memory->sockets[entry_index].str);
     shared_memory->sockets[entry_index].str = (shared_memory->sockets[entry_index].str+1)%MAX_BUFFER_SIZE_RECEIVER;

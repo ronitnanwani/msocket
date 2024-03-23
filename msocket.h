@@ -14,6 +14,8 @@
 #include <signal.h>   
 #include <sys/select.h>
 #include <time.h>  
+#include <fcntl.h>
+
 
 // Global error variable
 int m_errno;
@@ -26,7 +28,7 @@ int m_errno;
 #define ENOTBOUND 1002
 #define ENOSPACE 1003
 #define T 5
-#define p 0.05
+#define p 0.1
 
 typedef struct {
     int sequence_number;

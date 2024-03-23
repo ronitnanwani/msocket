@@ -1,40 +1,46 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <time.h>
+// #include <string.h>
+// #include <fcntl.h>
+// #include <time.h>
+// #include <sys/time.h>
 
-#define MIN_STRINGS 50    //minimum number of strings in the file
-#define MAX_STRINGS 90    //maximum number of strings in the file
+// #define MIN_FILE_SIZE  100*1024
+// #define MAX_FILE_SIZE  120*1024
+// #define MAX_LINES 50
 
+// int main() {
 
-// Function to generate a random string
-void generateRandomString(char *str, int length) {
-    const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
-    for (int i = 0; i < length-1; ++i) {
-        int index = rand() % (strlen(charset));
-        str[i] = charset[index];
-    }
-    str[length-1]='\n';
-}
+//     srand(time(NULL));
+//     int startport = 6000;
+//     const char charset[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
 
-int main() {
-    srand(time(NULL)); // Seed the random number generator
+//     for(int i=0;i<24;i++){
+//         printf("Generating file %d\n",i);
+//         char filename[100];
+//         sprintf(filename,"%d.%s",startport+i,"txt");
+//         int fp = open(filename,O_CREAT | O_WRONLY | O_TRUNC, 0666);
+//         int file_size = MIN_FILE_SIZE + (rand()%(MAX_FILE_SIZE-MIN_FILE_SIZE))+1;
+//         printf("%d\n",file_size);
+//         int curr_size=0;
+//         int line_count=0;
 
-    int startport = 6000;
-    for(int i=0;i<24;i++){
-        char filename[100];
-        sprintf(filename,"%d.%s",startport+i,"txt");
-        FILE* fp = fopen(filename,"w");
+//         while(curr_size<file_size){
+//             char random_char = charset[rand()%strlen(charset)];
+//             char* buff = &random_char;
+//             write(fp,buff,1);
+//             curr_size++;
+//             if ((rand() % 97) == 0 && line_count < MAX_LINES) {
+//                 write(fp, "\n", 1);
+//                 line_count++;
+//                 curr_size++;
+//             }
+//         }
+//         fsync(fp);
+//         close(fp);
 
-        int num_strings = MIN_STRINGS + (rand()%(MAX_STRINGS-MIN_STRINGS));
-
-        for(int j=0;j<num_strings;j++){
-                int string_len = 1024;
-                char random_string[string_len];
-                generateRandomString(random_string, string_len);
-                fwrite(random_string,1,1024,fp);
-        }
-        fclose(fp);
-    }
-    return 0;
-}
+//     printf("Completed generating the random files\n");
+//     return 0;
+//     }
+// }

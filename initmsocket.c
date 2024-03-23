@@ -215,7 +215,7 @@ void* thread_R(void* arg) {
                         }
 
                         if(flag && shared_memory->sockets[i].receive_temp_buffer[seq].ismsg == 0){
-                            strcpy(shared_memory->sockets[i].receive_temp_buffer[seq].data,msg.data);
+                            memcpy(shared_memory->sockets[i].receive_temp_buffer[seq].data,msg.data,1024);
                             shared_memory->sockets[i].receive_temp_buffer[seq].ismsg = 1;
                         }
 
@@ -227,7 +227,7 @@ void* thread_R(void* arg) {
                             if(shared_memory->sockets[i].receive_temp_buffer[j].ismsg == 1){
                                 // printf("Message %s\n",shared_memory->sockets[i].receive_temp_buffer[j].data);
                                 // printf("Writing at index %d\n",wrr);
-                                strcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data);
+                                memcpy(shared_memory->sockets[i].receive_buffer[wrr].data,shared_memory->sockets[i].receive_temp_buffer[j].data,1024);
                                 shared_memory->sockets[i].receive_buffer[wrr].ismsg = 1;
                                 wrr = (wrr+1)%5;
                                 shared_memory->sockets[i].wrr = wrr;
