@@ -187,6 +187,10 @@ int m_socket(int domain, int type, int protocol) {
 
 
 int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
+    if(sockfd<0 || sockfd>=MAX_SOCKETS){
+        m_errno=EBADF;
+        return -1;
+    }
     // Attach to shared memory
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key,0, 0666);
@@ -258,6 +262,10 @@ int m_bind(int sockfd, char* srcip,short srcport,char* destip,short destport){
 
 
 ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sockaddr* dest_addr, socklen_t dest_len) {
+    if(sockfd<0 || sockfd>=MAX_SOCKETS){
+        m_errno=EBADF;
+        return -1;
+    }
     // Attach to shared memory
     if(len>1024){
         len=1024;
@@ -281,6 +289,8 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
     int entry_index = sockfd;
 
     //do bad file descriptor check
+
+
 
     // Check if destination IP and port match the bound IP and port
     struct sockaddr_in* dest_add = (struct sockaddr_in*)(dest_addr);
@@ -329,6 +339,10 @@ ssize_t m_sendto(int sockfd, const void* buf, size_t len, int flags, struct sock
 
 // Function to receive a message on an MTP socket
 ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* sender_addr,socklen_t* sender_addr_len) {
+    if(sockfd<0 || sockfd>=MAX_SOCKETS){
+        m_errno=EBADF;
+        return -1;
+    }
     // Attach to shared memory
     if(len>1024){
         len=1024;
@@ -391,6 +405,10 @@ ssize_t m_recvfrom(int sockfd, void *buf, size_t len,int flags,struct sockaddr* 
 
 
 int m_close(int sockfd) {
+    if(sockfd<0 || sockfd>=MAX_SOCKETS){
+        m_errno=EBADF;
+        return -1;
+    }
 
     key_t shm_key = ftok("file1.txt", 65);
     int shm_id = shmget(shm_key, 0, 0666);
