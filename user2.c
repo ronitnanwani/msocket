@@ -38,10 +38,19 @@ int main(int argv,char* argc[]){
             // printf("%d\n",m_errno);
             continue;
         }
+        char *end_marker = strstr(buffer, "\r\n.\r\n");
+        int flag=0;
+        if(end_marker!=NULL){
+            *end_marker='\0';
+            flag=1;
+        }
         // buffer[1023]='\0';
         // printf("%s\n",buffer);
         write(fpr,buffer,strlen(buffer));
         fsync(fpr);
+        if(flag){
+            break;
+        }
     }
 
     // printf("\nDone receiving and now sending\n\n");
@@ -62,9 +71,10 @@ int main(int argv,char* argc[]){
     close(fpr);
     // close(fps);
 
-    while(1){
+    // while(1){
 
-    }
+    // }
+    m_close(sockfd);
 
     return 0;
 }

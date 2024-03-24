@@ -45,6 +45,12 @@ int main(int argv,char* argc[]){
         // i++;
     }
     printf("Done Sending %d.txt\n",myport);
+    int retval=-1;
+    while(retval<0){
+        memset(buffer,'\0',sizeof(buffer));
+        strcpy(buffer,"\r\n.\r\n");
+        retval = m_sendto(sockfd,buffer,strlen(buffer),0,(struct sockaddr*)&serv_addr,sizeof(serv_addr));
+    }
     // printf("%d\n",i);
 
     // printf("\nDone sending and now receving\n\n");
